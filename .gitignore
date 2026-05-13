@@ -1,0 +1,19 @@
+# Service folders (local/dev environment)
+.workspace/
+.venv/
+.agents/
+.codex/
+
+# Node/Backend
+backend/node_modules/
+backend/.env
+npm-debug.log*
+yarn-error.log*
+
+# Editor and office temporary files
+.~lock.*
+*.tmp
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
