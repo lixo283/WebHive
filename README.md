@@ -1,6 +1,8 @@
 # WebHive (Node.js + PostgreSQL + Vanilla JS)
 
-Проект переписан под новый стек:
+Учебный веб-сервис студии с каталогом услуг, заявками, личным кабинетом и административной панелью.
+
+Стек проекта:
 
 - Frontend: HTML5, CSS3, Vanilla JS (`fetch`, `async/await`)
 - Backend: Node.js + Express
@@ -16,9 +18,11 @@ pm05/
 │   ├── controllers/
 │   ├── middleware/
 │   ├── db/
-│   ├── schema.sql
 │   ├── package.json
 │   └── .env.example
+├── database/
+│   ├── schema.sql
+│   └── seed.sql
 ├── frontend/
 │   ├── index.html
 │   ├── catalog.html
@@ -47,15 +51,14 @@ pm05/
 
 1. Проверяет `node`, `npm`, `psql`.
 2. Создает `backend/.env` (если его нет).
-3. Устанавливает зависимости backend (если нет `node_modules`).
-4. Проверяет подключение к PostgreSQL.
-5. Создает БД `webstudio` (если отсутствует).
-6. Применяет `backend/schema.sql`.
-7. Запускает backend (`npm run dev`).
+3. Генерирует локальный `JWT_SECRET`, если секрет отсутствует или небезопасен.
+4. Устанавливает зависимости backend (если нет `node_modules`).
+5. Проверяет подключение к PostgreSQL.
+6. Создает БД `webstudio` (если отсутствует).
+7. Применяет `database/schema.sql` и `database/seed.sql`.
+8. Запускает backend (`npm run dev`).
 
-После запуска сайт доступен по адресу:
 
-- `http://localhost:3000`
 
 ## Ручной запуск (если нужен)
 
@@ -63,7 +66,13 @@ pm05/
 cd backend
 npm install
 cp .env.example .env
-psql -U postgres -d webstudio -f schema.sql
+```
+
+Замените `JWT_SECRET` в `backend/.env` на случайную строку длиной от 32 символов, затем примените SQL-файлы:
+
+```bash
+psql -U postgres -d webstudio -f ../database/schema.sql
+psql -U postgres -d webstudio -f ../database/seed.sql
 npm run dev
 ```
 
@@ -72,6 +81,7 @@ npm run dev
 ### Auth
 - `POST /api/auth/register`
 - `POST /api/auth/login`
+- `POST /api/auth/logout`
 
 ### Services
 - `GET /api/services`
@@ -88,15 +98,6 @@ npm run dev
 
 ### Applications
 - `POST /api/applications` (auth)
-- `GET /api/applications` (auth)
+- `GET /api/applications` (auth, для admin поддерживает `?status=new|work|done`)
+- `GET /api/applications/:id/history` (auth)
 - `PATCH /api/applications/:id/status` (admin)
-
-## Seed users
-
-После применения `schema.sql` создаются пользователи:
-
-- admin
-- client1
-- client2
-
-Пароль seed-пользователей: `password`

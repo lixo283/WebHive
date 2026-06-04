@@ -7,12 +7,31 @@
 # Node/Backend
 backend/node_modules/
 backend/.env
+backend/schema.pgsql
 npm-debug.log*
 yarn-error.log*
 
 # Editor and office temporary files
+.vscode/
 .~lock.*
 *.tmp
+
+# Local screenshots and unused source media
+screen/
+frontend/assets/img/2fon.png
+frontend/assets/img/3fon.png
+frontend/assets/img/Stllogistik.png
+frontend/assets/img/Vector 2.png
+frontend/assets/img/fon4.jpg
+frontend/assets/img/fon5.jpg
+frontend/assets/img/fon6.jpg
+frontend/assets/img/fon7.jpg
+frontend/assets/img/fon8.jpg
+frontend/assets/img/hero-project-preview.png
+frontend/assets/img/image 6.png
+frontend/assets/img/opitclab.png
+frontend/assets/img/ragaza.png
+frontend/assets/img/webhive-hero2.mp4
 
 # OS/editor noise
 .DS_Store
