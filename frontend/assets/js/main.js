@@ -1,7 +1,11 @@
 (() => {
+  const isLocalStaticPreview =
+    ['localhost', '127.0.0.1'].includes(window.location.hostname) &&
+    window.location.port &&
+    window.location.port !== '3000';
   const API_BASE =
     window.__API_BASE__ ||
-    (window.location.port === '3000' ? '/api' : 'http://localhost:3000/api');
+    (isLocalStaticPreview ? 'http://localhost:3000/api' : '/api');
   const TOKEN_KEY = 'ws_token';
   const USER_KEY = 'ws_user';
   const STATUS_META = {
