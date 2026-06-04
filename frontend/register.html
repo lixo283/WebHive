@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Регистрация — WebHive</title>
+  <meta name="description" content="Регистрация клиента в системе WebHive Studio.">
+  <link rel="icon" type="image/svg+xml" href="assets/img/webhive-fav.svg">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="wh-auth-minimal wh-auth-register">
+  <main class="wh-auth-wrap">
+    <a class="wh-auth-brand" href="index.html" aria-label="WebHive Studio">
+      <img src="assets/img/webhive-fav.svg" alt="">
+      <span>WebHive Studio</span>
+    </a>
+    <h1>Регистрация аккаунта</h1>
+    <p class="muted">Создайте аккаунт для заявок.</p>
+    <p><a class="wh-auth-home" href="index.html">← На главную</a></p>
+
+    <form id="registerForm">
+      <label class="label" for="registerLogin">Логин</label>
+      <input class="input" id="registerLogin" name="login" type="text" autocomplete="username" required>
+
+      <label class="label" for="registerPassword">Пароль</label>
+      <div class="wh-auth-password-wrap">
+        <input class="input" id="registerPassword" name="password" type="password" autocomplete="new-password" required>
+        <button class="wh-password-toggle" type="button" data-toggle-password="registerPassword">Показать</button>
+      </div>
+
+      <label class="label" for="registerConfirm">Подтверждение пароля</label>
+      <div class="wh-auth-password-wrap">
+        <input class="input" id="registerConfirm" name="confirmPassword" type="password" autocomplete="new-password" required>
+        <button class="wh-password-toggle" type="button" data-toggle-password="registerConfirm">Показать</button>
+      </div>
+
+      <label class="wh-auth-consent" for="registerConsent">
+        <input id="registerConsent" name="consent" type="checkbox" required>
+        <span>Я согласен(а) на обработку данных и использование файлов cookie согласно <a href="contacts.html">политике сервиса</a>.</span>
+      </label>
+
+      <div class="wh-auth-actions">
+        <button class="btn" type="submit">Зарегистрироваться</button>
+        <a class="btn" href="login.html">Уже есть аккаунт</a>
+      </div>
+    </form>
+
+    <div id="registerMessage" class="notice"></div>
+  </main>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

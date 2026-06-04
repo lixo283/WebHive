@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>WebHive — цифровая веб-студия</title>
+  <meta name="description" content="WebHive: веб-студия с каталогом услуг, портфолио, онлайн-заявками, личным кабинетом и админ-панелью.">
+  <link rel="icon" type="image/svg+xml" href="assets/img/webhive-fav.svg">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="webhive-home">
+  <aside class="left-sidebar">
+    <div class="left-sidebar-title">WebHive Studio</div>
+    <button class="left-sidebar-icon" id="menuToggle" type="button" aria-label="Открыть меню" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </aside>
+
+  <div class="menu-overlay" id="menuOverlay" hidden></div>
+  <section class="menu-screen" id="menuScreen" aria-hidden="true">
+    <div class="menu-screen-inner">
+      <p class="menu-screen-kicker">Навигация</p>
+      <nav class="menu-screen-list">
+        <a href="index.html"><span>01</span><b>Главная</b></a>
+        <a href="about.html"><span>02</span><b>О студии</b></a>
+        <a href="portfolio.html"><span>03</span><b>Проекты</b></a>
+        <a href="catalog.html"><span>04</span><b>Услуги</b></a>
+        <a href="tariffs.html"><span>05</span><b>Тарифы</b></a>
+        <a href="workflow.html"><span>06</span><b>Этапы</b></a>
+        <a href="contacts.html"><span>07</span><b>Контакты</b></a>
+        <a href="login.html" data-guest-only><span>08</span><b>Вход</b></a>
+        <a href="register.html" data-guest-only><span>09</span><b>Регистрация</b></a>
+        <a href="cabinet.html" data-auth-only><span>10</span><b>Кабинет</b></a>
+      </nav>
+      <a class="menu-screen-cta" href="service.html">Оставить заявку</a>
+    </div>
+  </section>
+
+  <main class="home-main wh-page">
+    <section class="wh-hero reveal" data-reveal-delay="0">
+      <div class="wh-hero-bg" aria-hidden="true">
+        <video class="wh-hero-video" autoplay muted loop playsinline poster="assets/img/fon6.webp">
+          <source src="assets/img/webhive-hero2-optimized.mp4" type="video/mp4">
+        </video>
+        <div class="wh-hero-tint"></div>
+      </div>
+      <a class="wh-top-cta" href="service.html">Оставить заявку</a>
+      <div class="wh-home-brand">
+        <img src="assets/img/webhive-logo.svg" alt="WebHive Studio">
+        <span>WebHive Studio</span>
+      </div>
+
+      <div class="wh-shell wh-hero-content">
+        <h1>WebHive Studio — сайты для роста бизнеса.</h1>
+        <p>
+          Создаем сайты под цели вашего бизнеса.
+        </p>
+        <div class="wh-divider line-reveal"></div>
+        <a class="wh-link-cta" href="catalog.html">
+          <span class="wh-link-dot" aria-hidden="true"></span>
+          <span>Узнать стоимость</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="wh-section wh-about reveal" id="about" data-reveal-delay="70">
+      <div class="wh-shell wh-split wh-about-split">
+        <p class="wh-label line-reveal wh-label-under-line">О ВЕБ-СТУДИИ И РЕЗУЛЬТАТАХ</p>
+        <div class="wh-split-body wh-about-body">
+          <div class="wh-about-grid">
+            <div class="wh-about-text">
+              <h2>Создаём цифровые решения для бизнеса</h2>
+              <p class="wh-lead">Делаем понятные сайты, которые приводят заявки.</p>
+
+              <a class="wh-about-link" href="about.html">
+                <span>Подробнее о компании</span>
+                <span class="wh-about-link-dot" aria-hidden="true"></span>
+              </a>
+            </div>
+
+            <div class="wh-stats">
+              <article class="wh-stat">
+                <p class="wh-stat-number">00</p>
+                <p>Негативных отзывов за все время работы</p>
+              </article>
+              <article class="wh-stat">
+                <p class="wh-stat-number">36</p>
+                <p>Реализованных проектов за 2 года</p>
+              </article>
+              <article class="wh-stat">
+                <p class="wh-stat-number">50</p>
+                <p>В топ 50 РФ более чем по 36 срезов</p>
+              </article>
+              <article class="wh-stat">
+                <p class="wh-stat-number">85</p>
+                <p>% сокращения расходов при сотрудничестве</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wh-section wh-projects reveal" id="portfolio" data-reveal-delay="110">
+      <div class="wh-shell wh-split wh-projects-split">
+        <p class="wh-label line-reveal wh-label-under-line">ПРОЕКТЫ WEBHIVE STUDIO</p>
+        <div class="wh-split-body">
+          <h2>Проекты</h2>
+          <p class="wh-lead">Реальные сайты клиентов из разных ниш: от медицины до логистики и авто.</p>
+
+          <div class="wh-projects-grid" id="projectsShowcase">
+            <div class="wh-projects-nav" role="tablist" aria-label="Список проектов">
+              <button
+                class="wh-project-item is-active"
+                type="button"
+                data-preview-image="assets/img/opitclab.webp"
+                data-preview-bg="#80d6dc"
+                data-preview-title="OPTIC LAB"
+                data-preview-text="Сайт сети салонов оптики: услуги, диагностика и онлайн-запись."
+              >
+                OPTIC LAB
+              </button>
+              <button
+                class="wh-project-item"
+                type="button"
+                data-preview-image="assets/img/ragaza.webp"
+                data-preview-bg="#1b1b1f"
+                data-preview-title="Ragaza"
+                data-preview-text="Промо-сайт студии с акцентом на кейсы, подход и входящие заявки."
+              >
+                Ragaza
+              </button>
+              <button
+                class="wh-project-item"
+                type="button"
+                data-preview-image="assets/img/Stllogistik.webp"
+                data-preview-bg="#e4c449"
+                data-preview-title="ST Logistic"
+                data-preview-text="Сайт транспортной компании с направлениями перевозок и формой расчёта."
+              >
+                ST Logistic
+              </button>
+              <button
+                class="wh-project-item"
+                type="button"
+                data-preview-image="assets/img/image 6.webp"
+                data-preview-bg="#11132a"
+                data-preview-title="Dealer Cars"
+                data-preview-text="Сайт автодилера с презентацией моделей и заявкой на консультацию."
+              >
+                Dealer Cars
+              </button>
+            </div>
+
+            <div class="wh-project-preview" id="projectPreviewCard">
+              <div class="wh-project-visual" id="projectPreviewVisual">
+                <img id="projectPreviewImage" src="assets/img/opitclab.webp" alt="Превью проекта OPTIC LAB" loading="lazy">
+              </div>
+              <div class="wh-project-meta">
+                <p class="wh-project-kicker">О проекте</p>
+                <h3 id="projectPreviewTitle">OPTIC LAB</h3>
+                <p id="projectPreviewText">Сайт сети салонов оптики: услуги, диагностика и онлайн-запись.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wh-showcase reveal" id="showcase" data-reveal-delay="130">
+      <div class="wh-showcase-bg" aria-hidden="true"></div>
+      <div class="wh-shell wh-split wh-showcase-split">
+        <div class="wh-split-body wh-showcase-body">
+          <h2>Наши работы — результат нашей экспертизы</h2>
+          <p class="wh-lead">Каждый проект повышает конверсию.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="wh-section wh-services reveal" id="services" data-reveal-delay="140">
+      <div class="wh-shell wh-split wh-services-split">
+        <p class="wh-label wh-label-light line-reveal wh-label-under-line">УСЛУГИ И ТЕХНОЛОГИИ</p>
+        <div class="wh-split-body wh-services-body">
+          <h2>Полный спектр услуг для роста проекта</h2>
+          <p class="wh-lead">Ведём проект от стратегии до запуска и поддержки.</p>
+
+          <div class="wh-services-grid">
+            <article class="wh-service-col">
+            <h3>Стратегия</h3>
+            <ul>
+              <li>Анализ</li>
+              <li>Аудитория</li>
+              <li>Цели</li>
+              <li>Маркетинг</li>
+            </ul>
+          </article>
+
+            <article class="wh-service-col">
+            <h3>Дизайн</h3>
+            <ul>
+              <li>UX/UI</li>
+              <li>Макеты</li>
+              <li>Анимации</li>
+              <li>Интерактив</li>
+            </ul>
+          </article>
+
+            <article class="wh-service-col">
+            <h3>Контент</h3>
+            <ul>
+              <li>Копирайтинг</li>
+              <li>Визуализация</li>
+              <li>Мультимедиа</li>
+              <li>SEO</li>
+            </ul>
+          </article>
+
+            <article class="wh-service-col">
+            <h3>Технологии</h3>
+            <ul>
+              <li>Веб-разработка</li>
+              <li>Адаптивность</li>
+              <li>Коммерция</li>
+              <li>CRM</li>
+              <li>Рассылки</li>
+              <li>Чат-боты</li>
+            </ul>
+          </article>
+          </div>
+
+          <a class="wh-link-cta wh-link-muted wh-services-cta" href="catalog.html">
+            <span>Посмотреть все услуги веб студии</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="wh-reasons reveal" id="workflow" data-reveal-delay="170">
+      <div class="wh-reasons-bg" aria-hidden="true"></div>
+      <div class="wh-shell wh-reasons-layout">
+        <div class="wh-reasons-intro">
+          <p class="wh-label wh-label-light line-reveal">ПОЧЕМУ ВЫБИРАЮТ WEBHIVE</p>
+          <h2>4 причины выбрать WebHive Studio</h2>
+          <p>Работаем прозрачно и отвечаем за результат.</p>
+          <a class="wh-link-cta" href="service.html">
+            <span>Сотрудничать</span>
+          </a>
+        </div>
+
+        <div class="wh-reasons-list">
+          <article class="wh-reason-item">
+            <h3>Сроки под контролем</h3>
+            <p>Фиксируем этапы и сроки проекта.</p>
+          </article>
+          <article class="wh-reason-item">
+            <h3>Договор и прозрачность</h3>
+            <p>Закрепляем стоимость, объем задач и KPI в договоре.</p>
+          </article>
+          <article class="wh-reason-item wh-reason-base">
+            <h3>Аргументированные решения</h3>
+            <p>Решения принимаем на основе аналитики.</p>
+          </article>
+          <article class="wh-reason-item wh-reason-base">
+            <h3>Практические рекомендации</h3>
+            <p>Передаем сайт и план дальнейшего роста.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="wh-reviews reveal" id="contacts" data-reveal-delay="200">
+      <div class="wh-shell wh-split wh-reviews-split">
+        <p class="wh-label wh-review-label line-reveal wh-label-under-line">ОТЗЫВЫ И РЕЗУЛЬТАТЫ</p>
+        <div class="wh-reviews-body">
+        <div class="wh-reviews-head">
+          <h2>Результаты, которые говорят сами за себя</h2>
+          <a class="wh-top-cta wh-top-cta-light" href="service.html">Оставить заявку</a>
+        </div>
+
+        <article class="wh-reviews-panel">
+          <p class="wh-review-quote" id="reviewQuote">«Сайт для OPTIC LAB повысил обращения».</p>
+          <p class="wh-review-name" id="reviewName">Юрий Маркин</p>
+          <p class="wh-review-role" id="reviewRole">Руководитель проекта OPTIC LAB</p>
+
+          <div class="wh-reviews-bottom">
+            <div class="wh-review-controls">
+              <button class="wh-review-nav" type="button" data-review-nav="-1" aria-label="Предыдущий отзыв">Предыдущий</button>
+              <span id="reviewCounter">1 / 4</span>
+              <button class="wh-review-nav" type="button" data-review-nav="1" aria-label="Следующий отзыв">Следующий</button>
+            </div>
+            <p class="wh-review-company" id="reviewCompany">OPTIC LAB</p>
+          </div>
+
+          <div class="wh-review-tags" role="tablist" aria-label="Тип отзывов">
+            <button
+              class="wh-review-tag is-active"
+              type="button"
+              data-review-index="0"
+              data-review-quote="Сайт для OPTIC LAB повысил обращения."
+              data-review-name="Юрий Маркин"
+              data-review-role="Руководитель проекта OPTIC LAB"
+              data-review-company="OPTIC LAB"
+            >
+              OPTIC LAB
+            </button>
+            <button
+              class="wh-review-tag"
+              type="button"
+              data-review-index="1"
+              data-review-quote="Сайт Ragaza усилил вовлечение и увеличил заявки."
+              data-review-name="Алина Романова"
+              data-review-role="Product owner Ragaza"
+              data-review-company="Ragaza"
+            >
+              Ragaza
+            </button>
+            <button
+              class="wh-review-tag"
+              type="button"
+              data-review-index="2"
+              data-review-quote="Сайт ST Logistic сократил путь клиента до заявки."
+              data-review-name="Максим Гребнев"
+              data-review-role="Коммерческий директор ST Logistic"
+              data-review-company="ST Logistic"
+            >
+              ST Logistic
+            </button>
+            <button
+              class="wh-review-tag"
+              type="button"
+              data-review-index="3"
+              data-review-quote="Сайт Dealer Cars стабильно приносит лиды из поиска и рекламы."
+              data-review-name="Екатерина Лаврова"
+              data-review-role="Директор по развитию Dealer Cars"
+              data-review-company="Dealer Cars"
+            >
+              Dealer Cars
+            </button>
+          </div>
+        </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wh-footer">
+    <div class="container footer-grid">
+      <div class="wh-footer-brand">
+        <img class="wh-footer-logo" src="assets/img/webhive-logo.svg" alt="WebHive Studio">
+        <span>WebHive Studio</span>
+        <small>© WebHive Studio 2026</small>
+      </div>
+      <div>Digital agency · Design · Development</div>
+      <div>hello@webhive.studio</div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

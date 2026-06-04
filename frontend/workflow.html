@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Этапы работы — WebHive</title>
+  <meta name="description" content="Этапы работы WebHive Studio: от аналитики до запуска и развития проекта.">
+  <link rel="icon" type="image/svg+xml" href="assets/img/webhive-fav.svg">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="webhive-home wh-inner-site">
+  <aside class="left-sidebar">
+    <div class="left-sidebar-title">WebHive Studio</div>
+    <button class="left-sidebar-icon" id="menuToggle" type="button" aria-label="Открыть меню" aria-expanded="false"><span></span><span></span><span></span></button>
+  </aside>
+
+  <div class="menu-overlay" id="menuOverlay" hidden></div>
+  <section class="menu-screen" id="menuScreen" aria-hidden="true">
+    <div class="menu-screen-inner">
+      <p class="menu-screen-kicker">Навигация</p>
+      <nav class="menu-screen-list">
+        <a href="index.html"><span>01</span><b>Главная</b></a>
+        <a href="about.html"><span>02</span><b>О студии</b></a>
+        <a href="portfolio.html"><span>03</span><b>Проекты</b></a>
+        <a href="catalog.html"><span>04</span><b>Услуги</b></a>
+        <a href="tariffs.html"><span>05</span><b>Тарифы</b></a>
+        <a href="workflow.html"><span>06</span><b>Этапы</b></a>
+        <a href="contacts.html"><span>07</span><b>Контакты</b></a>
+        <a href="login.html" data-guest-only><span>08</span><b>Вход</b></a>
+        <a href="register.html" data-guest-only><span>09</span><b>Регистрация</b></a>
+        <a href="cabinet.html" data-auth-only><span>10</span><b>Кабинет</b></a>
+      </nav>
+      <a class="menu-screen-cta" href="service.html">Оставить заявку</a>
+    </div>
+  </section>
+
+  <main class="home-main wh-page wh-inner-main">
+    <section class="wh-inner-hero wh-inner-hero-workflow reveal" data-reveal-delay="0">
+      <div class="wh-inner-hero-bg" aria-hidden="true"></div>
+      <div class="wh-shell wh-split wh-inner-hero-split">
+        <div class="wh-split-body">
+          <h1>Работаем по этапам с измеримым результатом.</h1>
+          <p class="wh-lead">Фиксируем роли и контрольные точки.</p>
+          <a class="wh-link-cta" href="contacts.html"><span class="wh-link-dot" aria-hidden="true"></span><span>Получить план работ</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="wh-section wh-inner-section reveal" data-reveal-delay="70">
+      <div class="wh-shell wh-split">
+        <p class="wh-label line-reveal">ROADMAP</p>
+        <div class="wh-split-body">
+          <h2>Путь проекта: от заявки до запуска.</h2>
+          <div class="wh-workflow-road" id="workflowRoadmap">
+            <article class="wh-road-step" data-road-step>
+              <div class="wh-road-step-head">
+                <span class="wh-road-step-index">01</span>
+                <h3>Заявка и вводный созвон</h3>
+              </div>
+              <p>Уточняем задачу, бюджет, сроки и удобный формат взаимодействия.</p>
+            </article>
+            <article class="wh-road-step" data-road-step>
+              <div class="wh-road-step-head">
+                <span class="wh-road-step-index">02</span>
+                <h3>Аналитика и структура</h3>
+              </div>
+              <p>Анализируем нишу и собираем структуру страниц.</p>
+            </article>
+            <article class="wh-road-step" data-road-step>
+              <div class="wh-road-step-head">
+                <span class="wh-road-step-index">03</span>
+                <h3>Прототип и UX</h3>
+              </div>
+              <p>Проектируем UX и короткий путь к заявке.</p>
+            </article>
+            <article class="wh-road-step" data-road-step>
+              <div class="wh-road-step-head">
+                <span class="wh-road-step-index">04</span>
+                <h3>UI-дизайн</h3>
+              </div>
+              <p>Делаем UI-дизайн и адаптивные состояния экранов.</p>
+            </article>
+            <article class="wh-road-step" data-road-step>
+              <div class="wh-road-step-head">
+                <span class="wh-road-step-index">05</span>
+                <h3>Разработка и интеграции</h3>
+              </div>
+              <p>Реализуем фронтенд, backend и интеграции.</p>
+            </article>
+            <article class="wh-road-step" data-road-step>
+              <div class="wh-road-step-head">
+                <span class="wh-road-step-index">06</span>
+                <h3>Тестирование и релиз</h3>
+              </div>
+              <p>Тестируем проект и запускаем в продакшен.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wh-section wh-inner-section reveal" data-reveal-delay="100">
+      <div class="wh-shell wh-split">
+        <p class="wh-label line-reveal">УСЛУГИ И ТАРИФЫ</p>
+        <div class="wh-split-body">
+          <h2>Какие услуги и тарифы подключаются по ходу roadmap.</h2>
+          <div class="wh-inner-list" data-stagger>
+            <div class="wh-inner-list-row"><b>Старт (Start)</b><span>Вводный созвон, аналитика, структура и базовый UX для первого запуска.</span></div>
+            <div class="wh-inner-list-row"><b>Рост (Growth)</b><span>Контент-архитектура, дизайн-система, лид-формы, аналитика и SEO-база.</span></div>
+            <div class="wh-inner-list-row"><b>Commerce</b><span>Каталог, карточки, фильтры, корзина, интеграции оплаты и CRM.</span></div>
+            <div class="wh-inner-list-row"><b>Brand Pro</b><span>Имиджевые страницы, расширенные сценарии контента и презентация экспертизы.</span></div>
+            <div class="wh-inner-list-row"><b>Scale</b><span>Этап роста: новые разделы, сложные интеграции и усиление продуктовой логики.</span></div>
+            <div class="wh-inner-list-row"><b>Support</b><span>Регулярное сопровождение после релиза: обновления, фиксы, отчеты и улучшения по метрикам.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wh-footer">
+    <div class="container footer-grid">
+      <div class="wh-footer-brand">
+        <img class="wh-footer-logo" src="assets/img/webhive-logo.svg" alt="WebHive Studio">
+        <span>WebHive Studio</span>
+        <small>© WebHive Studio 2026</small>
+      </div>
+      <div>Process-first approach</div>
+      <div>hello@webhive.studio</div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

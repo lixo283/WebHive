@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Услуги — WebHive</title>
+  <meta name="description" content="Каталог услуг WebHive Studio с фильтрами и подбором решения под задачу бизнеса.">
+  <link rel="icon" type="image/svg+xml" href="assets/img/webhive-fav.svg">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="webhive-home wh-inner-site">
+  <aside class="left-sidebar">
+    <div class="left-sidebar-title">WebHive Studio</div>
+    <button class="left-sidebar-icon" id="menuToggle" type="button" aria-label="Открыть меню" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </aside>
+
+  <div class="menu-overlay" id="menuOverlay" hidden></div>
+  <section class="menu-screen" id="menuScreen" aria-hidden="true">
+    <div class="menu-screen-inner">
+      <p class="menu-screen-kicker">Навигация</p>
+      <nav class="menu-screen-list">
+        <a href="index.html"><span>01</span><b>Главная</b></a>
+        <a href="about.html"><span>02</span><b>О студии</b></a>
+        <a href="portfolio.html"><span>03</span><b>Проекты</b></a>
+        <a href="catalog.html"><span>04</span><b>Услуги</b></a>
+        <a href="tariffs.html"><span>05</span><b>Тарифы</b></a>
+        <a href="workflow.html"><span>06</span><b>Этапы</b></a>
+        <a href="contacts.html"><span>07</span><b>Контакты</b></a>
+        <a href="login.html" data-guest-only><span>08</span><b>Вход</b></a>
+        <a href="register.html" data-guest-only><span>09</span><b>Регистрация</b></a>
+        <a href="cabinet.html" data-auth-only><span>10</span><b>Кабинет</b></a>
+      </nav>
+      <a class="menu-screen-cta" href="service.html">Оставить заявку</a>
+    </div>
+  </section>
+
+  <main class="home-main wh-page wh-inner-main">
+    <section class="wh-inner-hero wh-inner-hero-services reveal" data-reveal-delay="0">
+      <div class="wh-inner-hero-bg" aria-hidden="true"></div>
+      <div class="wh-shell wh-split wh-inner-hero-split">
+        <div class="wh-split-body">
+          <h1>Все услуги WebHive Studio в одном каталоге.</h1>
+          <p class="wh-lead">Выберите услугу по задаче, категории и бюджету.</p>
+          <a class="wh-link-cta" href="contacts.html"><span class="wh-link-dot" aria-hidden="true"></span><span>Получить консультацию</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="wh-section wh-inner-section reveal" data-reveal-delay="60">
+      <div class="wh-shell wh-split">
+        <p class="wh-label line-reveal">ФИЛЬТРЫ</p>
+        <div class="wh-split-body">
+          <h2>Подберите услугу по категории и бюджету</h2>
+          <div class="wh-inner-filters" data-stagger>
+            <div class="wh-inner-input-wrap">
+              <label class="label" for="searchInput">Поиск</label>
+              <input class="input" id="searchInput" placeholder="Например: корпоративный сайт">
+            </div>
+            <div class="wh-inner-input-wrap">
+              <label class="label" for="categorySelect">Категория</label>
+              <select id="categorySelect">
+                <option value="">Все категории</option>
+                <option value="Landing">Landing</option>
+                <option value="Corporate">Corporate</option>
+                <option value="Store">Store</option>
+                <option value="Design">Design</option>
+                <option value="Brand">Brand</option>
+                <option value="Support">Support</option>
+              </select>
+            </div>
+            <div class="wh-inner-input-wrap">
+              <label class="label" for="minPriceInput">Цена от</label>
+              <input class="input" id="minPriceInput" type="number" min="0" placeholder="0">
+            </div>
+            <div class="wh-inner-input-wrap">
+              <label class="label" for="maxPriceInput">Цена до</label>
+              <input class="input" id="maxPriceInput" type="number" min="0" placeholder="500000">
+            </div>
+          </div>
+
+          <div id="servicesGrid" class="wh-inner-services-grid" data-stagger></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wh-footer">
+    <div class="container footer-grid">
+      <div class="wh-footer-brand">
+        <img class="wh-footer-logo" src="assets/img/webhive-logo.svg" alt="WebHive Studio">
+        <span>WebHive Studio</span>
+        <small>© WebHive Studio 2026</small>
+      </div>
+      <div>Strategy · Design · Content · Technology</div>
+      <div>hello@webhive.studio</div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

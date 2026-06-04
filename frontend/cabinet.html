@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Кабинет — WebHive</title>
+  <meta name="description" content="Личный кабинет клиента WebHive Studio.">
+  <link rel="icon" type="image/svg+xml" href="assets/img/webhive-fav.svg">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="webhive-home wh-inner-site wh-page-cabinet">
+  <aside class="left-sidebar">
+    <div class="left-sidebar-title">WebHive Studio</div>
+    <button class="left-sidebar-icon" id="menuToggle" type="button" aria-label="Открыть меню" aria-expanded="false"><span></span><span></span><span></span></button>
+  </aside>
+
+  <div class="menu-overlay" id="menuOverlay" hidden></div>
+  <section class="menu-screen" id="menuScreen" aria-hidden="true">
+    <div class="menu-screen-inner">
+      <p class="menu-screen-kicker">Навигация</p>
+      <nav class="menu-screen-list">
+        <a href="index.html"><span>01</span><b>Главная</b></a>
+        <a href="about.html"><span>02</span><b>О студии</b></a>
+        <a href="portfolio.html"><span>03</span><b>Проекты</b></a>
+        <a href="catalog.html"><span>04</span><b>Услуги</b></a>
+        <a href="tariffs.html"><span>05</span><b>Тарифы</b></a>
+        <a href="workflow.html"><span>06</span><b>Этапы</b></a>
+        <a href="contacts.html"><span>07</span><b>Контакты</b></a>
+        <a href="login.html" data-guest-only><span>08</span><b>Вход</b></a>
+        <a href="register.html" data-guest-only><span>09</span><b>Регистрация</b></a>
+        <a href="cabinet.html" data-auth-only><span>10</span><b>Кабинет</b></a>
+      </nav>
+      <a class="menu-screen-cta" href="service.html">Оставить заявку</a>
+    </div>
+  </section>
+
+  <main class="home-main wh-page wh-inner-main">
+    <section class="wh-inner-hero wh-inner-hero-cabinet reveal" data-reveal-delay="0">
+      <div class="wh-inner-hero-bg" aria-hidden="true"></div>
+      <a class="wh-top-cta" data-admin-only href="admin.html">Админ-панель</a>
+      <div class="wh-shell wh-split wh-inner-hero-split">
+        <div class="wh-split-body">
+          <p class="wh-cabinet-kicker wh-cabinet-hero-kicker">Личный кабинет</p>
+          <h1>Контролируйте ход работ и статус каждой заявки.</h1>
+          <p class="wh-cabinet-subline">Все обращения, этапы и изменения собраны в одном месте.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="wh-section wh-inner-section reveal" data-reveal-delay="70">
+      <div class="wh-shell wh-split">
+        <p class="wh-label line-reveal">ПРОФИЛЬ</p>
+        <div class="wh-split-body">
+          <h2>Личный кабинет клиента</h2>
+          <div class="wh-cabinet-overview" data-stagger>
+            <article class="panel wh-inner-panel wh-cabinet-card wh-cabinet-profile-card">
+              <p class="wh-cabinet-kicker">Профиль</p>
+              <h3 id="cabinetGreeting">Здравствуйте!</h3>
+              <div class="wh-cabinet-profile-grid">
+                <p class="wh-cabinet-profile-item">
+                  <span>Логин</span>
+                  <b id="profileLogin">—</b>
+                </p>
+                <p class="wh-cabinet-profile-item" data-admin-only>
+                  <span>Роль</span>
+                  <b id="profileRole">—</b>
+                </p>
+              </div>
+              <div class="actions wh-inner-actions">
+                <a class="btn wh-btn-flat" href="catalog.html">Выбрать услугу</a>
+                <a class="btn wh-btn-flat" href="service.html">Оставить заявку</a>
+                <a class="btn wh-btn-flat" href="#" data-logout>Выйти</a>
+              </div>
+            </article>
+            <article class="panel wh-inner-panel wh-cabinet-card wh-cabinet-summary-card">
+              <p class="wh-cabinet-kicker">Сводка по заявкам</p>
+              <div class="wh-cabinet-metrics">
+                <div class="wh-cabinet-metric">
+                  <span>Всего</span>
+                  <strong id="cabinetTotalCount">0</strong>
+                </div>
+                <div class="wh-cabinet-metric">
+                  <span>Новые</span>
+                  <strong id="cabinetNewCount">0</strong>
+                </div>
+                <div class="wh-cabinet-metric">
+                  <span>В работе</span>
+                  <strong id="cabinetWorkCount">0</strong>
+                </div>
+                <div class="wh-cabinet-metric">
+                  <span>Выполнено</span>
+                  <strong id="cabinetDoneCount">0</strong>
+                </div>
+              </div>
+              <p class="wh-cabinet-updated">Последнее обновление: <span id="cabinetUpdatedAt">—</span></p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wh-section wh-inner-section reveal" data-reveal-delay="100">
+      <div class="wh-shell wh-split">
+        <p class="wh-label line-reveal">ЗАЯВКИ</p>
+        <div class="wh-split-body">
+          <h2>История заявок</h2>
+          <div class="wh-cabinet-app-layout">
+            <div class="wh-cabinet-main-column">
+              <div class="panel table-wrap wh-cabinet-table-panel">
+                <table class="table wh-cabinet-applications-table">
+                  <thead>
+                    <tr><th>Заявка</th><th>Услуга</th><th>Дата</th><th>Статус</th><th>История</th></tr>
+                  </thead>
+                  <tbody id="applicationsBody">
+                    <tr><td colspan="5">Загрузка...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <aside class="panel wh-inner-panel wh-cabinet-history-panel" id="cabinetHistoryPanel" hidden>
+                <h3>История по заявке <span id="cabinetHistoryAppId">—</span></h3>
+                <ul class="wh-cabinet-history-list" id="cabinetHistoryList"></ul>
+              </aside>
+            </div>
+            <aside class="panel wh-inner-panel wh-cabinet-feed">
+              <h3>Последние заявки</h3>
+              <p class="wh-cabinet-feed-note">Показываем последние обращения и их текущий этап.</p>
+              <ul class="wh-cabinet-feed-list" id="cabinetRecentList">
+                <li class="wh-cabinet-feed-empty">Загрузка...</li>
+              </ul>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wh-footer">
+    <div class="container footer-grid">
+      <div class="wh-footer-brand">
+        <img class="wh-footer-logo" src="assets/img/webhive-logo.svg" alt="WebHive Studio">
+        <span>WebHive Studio</span>
+        <small>© WebHive Studio 2026</small>
+      </div>
+      <div>Client dashboard</div>
+      <div>hello@webhive.studio</div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Вход — WebHive</title>
+  <meta name="description" content="Авторизация клиента WebHive Studio.">
+  <link rel="icon" type="image/svg+xml" href="assets/img/webhive-fav.svg">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="wh-auth-minimal wh-auth-login">
+  <main class="wh-auth-wrap">
+    <a class="wh-auth-brand" href="index.html" aria-label="WebHive Studio">
+      <img src="assets/img/webhive-fav.svg" alt="">
+      <span>WebHive Studio</span>
+    </a>
+    <h1>Вход в кабинет</h1>
+    <p class="muted">Введите логин и пароль, чтобы войти в кабинет.</p>
+    <p><a class="wh-auth-home" href="index.html">← На главную</a></p>
+
+    <form id="loginForm">
+      <label class="label" for="loginField">Логин</label>
+      <input class="input" id="loginField" name="login" type="text" autocomplete="username" required>
+
+      <label class="label" for="passwordField">Пароль</label>
+      <div class="wh-auth-password-wrap">
+        <input class="input" id="passwordField" name="password" type="password" autocomplete="current-password" required>
+        <button class="wh-password-toggle" type="button" data-toggle-password="passwordField">Показать</button>
+      </div>
+
+      <div class="wh-auth-actions">
+        <button class="btn" type="submit">Войти</button>
+        <a class="btn" href="register.html">Регистрация</a>
+      </div>
+    </form>
+
+    <div id="loginMessage" class="notice"></div>
+  </main>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

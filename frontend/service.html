@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Услуга — WebHive</title>
+  <meta name="description" content="Детальная страница услуги WebHive Studio и форма отправки заявки.">
+  <link rel="icon" type="image/svg+xml" href="assets/img/webhive-fav.svg">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="webhive-home wh-inner-site">
+  <aside class="left-sidebar">
+    <div class="left-sidebar-title">WebHive Studio</div>
+    <button class="left-sidebar-icon" id="menuToggle" type="button" aria-label="Открыть меню" aria-expanded="false"><span></span><span></span><span></span></button>
+  </aside>
+
+  <div class="menu-overlay" id="menuOverlay" hidden></div>
+  <section class="menu-screen" id="menuScreen" aria-hidden="true">
+    <div class="menu-screen-inner">
+      <p class="menu-screen-kicker">Навигация</p>
+      <nav class="menu-screen-list">
+        <a href="index.html"><span>01</span><b>Главная</b></a>
+        <a href="about.html"><span>02</span><b>О студии</b></a>
+        <a href="portfolio.html"><span>03</span><b>Проекты</b></a>
+        <a href="catalog.html"><span>04</span><b>Услуги</b></a>
+        <a href="tariffs.html"><span>05</span><b>Тарифы</b></a>
+        <a href="workflow.html"><span>06</span><b>Этапы</b></a>
+        <a href="contacts.html"><span>07</span><b>Контакты</b></a>
+        <a href="login.html" data-guest-only><span>08</span><b>Вход</b></a>
+        <a href="register.html" data-guest-only><span>09</span><b>Регистрация</b></a>
+        <a href="cabinet.html" data-auth-only><span>10</span><b>Кабинет</b></a>
+      </nav>
+      <a class="menu-screen-cta" href="service.html">Оставить заявку</a>
+    </div>
+  </section>
+
+  <main class="home-main wh-page wh-inner-main">
+    <section class="wh-inner-hero wh-inner-hero-service reveal" data-reveal-delay="0">
+      <div class="wh-inner-hero-bg" aria-hidden="true"></div>
+      <div class="wh-shell wh-split wh-inner-hero-split">
+        <p class="wh-label wh-label-light"></p>
+        <div class="wh-split-body">
+          <h1 id="serviceTitle">Оставить заявку на услугу</h1>
+          <p id="serviceDescription" class="wh-lead">Выберите услугу и отправьте заявку на расчет.</p>
+          <p id="servicePrice" class="wh-inner-price"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="wh-section wh-inner-section reveal" data-reveal-delay="60">
+      <div class="wh-shell wh-split">
+        <p class="wh-label line-reveal">ЗАЯВКА</p>
+        <div class="wh-split-body">
+          <h2>Оставьте заявку и получите расчет стоимости.</h2>
+          <div class="wh-inner-service-layout" data-stagger>
+            <article class="wh-inner-panel">
+              <h3>Что входит в реализацию</h3>
+              <ul>
+                <li>Анализ ниши, конкурентов и аудитории</li>
+                <li>Структура страниц и UX-сценарии</li>
+                <li>Дизайн и адаптивная разработка</li>
+                <li>Интеграции, тестирование и запуск</li>
+              </ul>
+            </article>
+
+            <article class="panel wh-inner-form-panel">
+              <form id="applicationForm">
+                <label class="label" for="applicationServiceSelect">Услуга</label>
+                <select id="applicationServiceSelect" required>
+                  <option value="">Выберите услугу</option>
+                </select>
+                <label class="label" for="applicationContactName">Контактное лицо</label>
+                <input class="input" id="applicationContactName" placeholder="Иван Петров" required>
+                <label class="label" for="applicationContactEmail">Email для связи</label>
+                <input class="input" id="applicationContactEmail" type="email" placeholder="name@company.ru" required>
+                <label class="label" for="applicationContactPhone">Телефон</label>
+                <input class="input" id="applicationContactPhone" placeholder="+7 (900) 000-00-00" required>
+                <label class="label" for="applicationComment">Комментарий к задаче</label>
+                <textarea id="applicationComment" rows="5" placeholder="Кратко опишите нишу, цели и ожидаемый результат"></textarea>
+                <div class="actions wh-inner-actions">
+                  <button class="btn wh-btn-flat" type="submit">Отправить заявку</button>
+                  <a class="btn wh-btn-flat" href="cabinet.html">Мои заявки</a>
+                </div>
+              </form>
+              <div id="applicationMessage" class="notice"></div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wh-footer">
+    <div class="container footer-grid">
+      <div class="wh-footer-brand">
+        <img class="wh-footer-logo" src="assets/img/webhive-logo.svg" alt="WebHive Studio">
+        <span>WebHive Studio</span>
+        <small>© WebHive Studio 2026</small>
+      </div>
+      <div>Service discovery and estimation</div>
+      <div>hello@webhive.studio</div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Контакты — WebHive</title>
+  <meta name="description" content="Контакты WebHive Studio: обсудить проект, оставить заявку, выбрать удобный канал связи.">
+  <link rel="icon" type="image/svg+xml" href="assets/img/webhive-fav.svg">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="webhive-home wh-inner-site wh-page-contacts">
+  <aside class="left-sidebar">
+    <div class="left-sidebar-title">WebHive Studio</div>
+    <button class="left-sidebar-icon" id="menuToggle" type="button" aria-label="Открыть меню" aria-expanded="false"><span></span><span></span><span></span></button>
+  </aside>
+
+  <div class="menu-overlay" id="menuOverlay" hidden></div>
+  <section class="menu-screen" id="menuScreen" aria-hidden="true">
+    <div class="menu-screen-inner">
+      <p class="menu-screen-kicker">Навигация</p>
+      <nav class="menu-screen-list">
+        <a href="index.html"><span>01</span><b>Главная</b></a>
+        <a href="about.html"><span>02</span><b>О студии</b></a>
+        <a href="portfolio.html"><span>03</span><b>Проекты</b></a>
+        <a href="catalog.html"><span>04</span><b>Услуги</b></a>
+        <a href="tariffs.html"><span>05</span><b>Тарифы</b></a>
+        <a href="workflow.html"><span>06</span><b>Этапы</b></a>
+        <a href="contacts.html"><span>07</span><b>Контакты</b></a>
+        <a href="login.html" data-guest-only><span>08</span><b>Вход</b></a>
+        <a href="register.html" data-guest-only><span>09</span><b>Регистрация</b></a>
+        <a href="cabinet.html" data-auth-only><span>10</span><b>Кабинет</b></a>
+      </nav>
+      <a class="menu-screen-cta" href="service.html">Оставить заявку</a>
+    </div>
+  </section>
+
+  <main class="home-main wh-page wh-inner-main">
+    <section class="wh-inner-hero wh-inner-hero-contacts reveal" data-reveal-delay="0">
+      <div class="wh-inner-hero-bg" aria-hidden="true"></div>
+      <div class="wh-shell wh-split wh-inner-hero-split">
+        <div class="wh-split-body">
+          <h1>Свяжитесь с WebHive Studio любым удобным способом.</h1>
+          <p class="wh-lead">Заявка бесплатна и ни к чему не обязывает.</p>
+          <a class="wh-link-cta" href="service.html"><span class="wh-link-dot" aria-hidden="true"></span><span>Оставить заявку</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="wh-section wh-inner-section reveal" data-reveal-delay="70">
+      <div class="wh-shell wh-split">
+        <p class="wh-label line-reveal">СВЯЗЬ</p>
+        <div class="wh-split-body">
+          <h2>Контактные данные и рабочее время.</h2>
+          <div class="wh-contacts-grid" data-stagger>
+            <article class="wh-contact-card">
+              <p class="wh-contact-kicker">Email</p>
+              <a class="wh-contact-value" href="mailto:hello@webhive.studio">hello@webhive.studio</a>
+              <p class="wh-contact-note">Отвечаем в рабочее время.</p>
+            </article>
+            <article class="wh-contact-card">
+              <p class="wh-contact-kicker">Телефон</p>
+              <a class="wh-contact-value" href="tel:+79990000000">+7 (999) 000-00-00</a>
+              <p class="wh-contact-note">Для быстрых вопросов по запуску.</p>
+            </article>
+            <article class="wh-contact-card">
+              <p class="wh-contact-kicker">График</p>
+              <p class="wh-contact-value">Пн–Пт · 10:00–19:00</p>
+              <p class="wh-contact-note">Часовой пояс: МСК.</p>
+            </article>
+            <article class="wh-contact-card">
+              <p class="wh-contact-kicker">Локация</p>
+              <p class="wh-contact-value">Москва · Работаем по всей РФ</p>
+              <p class="wh-contact-note">Онлайн и офлайн сопровождение.</p>
+            </article>
+          </div>
+
+          <div class="wh-contacts-steps" data-stagger>
+            <article class="wh-contacts-step">
+              <b>Вводный созвон</b>
+              <span>Созваниваемся на 20-30 минут и фиксируем задачи проекта.</span>
+            </article>
+            <article class="wh-contacts-step">
+              <b>Оценка</b>
+              <span>Мы даем сроки, стоимость и план запуска.</span>
+            </article>
+            <article class="wh-contacts-step">
+              <b>Старт</b>
+              <span>Согласовываем этапы и начинаем работу.</span>
+            </article>
+          </div>
+
+          <div class="wh-contacts-cta-panel" data-stagger>
+            <p>Можем обсудить проект уже сегодня.</p>
+            <div class="wh-contacts-actions">
+              <a class="wh-link-cta" href="service.html"><span class="wh-link-dot" aria-hidden="true"></span><span>Оставить заявку</span></a>
+              <a class="wh-link-cta wh-link-muted" href="mailto:hello@webhive.studio"><span>Написать на email</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wh-footer">
+    <div class="container footer-grid">
+      <div class="wh-footer-brand">
+        <img class="wh-footer-logo" src="assets/img/webhive-logo.svg" alt="WebHive Studio">
+        <span>WebHive Studio</span>
+        <small>© WebHive Studio 2026</small>
+      </div>
+      <div>Contact us for project discovery</div>
+      <div>hello@webhive.studio</div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

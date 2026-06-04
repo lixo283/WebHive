@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Админ-панель — WebHive</title>
+  <meta name="description" content="Админ-панель WebHive Studio: управление услугами, портфолио и заявками.">
+  <link rel="icon" type="image/svg+xml" href="assets/img/webhive-fav.svg">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="webhive-home wh-inner-site">
+  <aside class="left-sidebar">
+    <div class="left-sidebar-title">WebHive Studio</div>
+    <button class="left-sidebar-icon" id="menuToggle" type="button" aria-label="Открыть меню" aria-expanded="false"><span></span><span></span><span></span></button>
+  </aside>
+
+  <div class="menu-overlay" id="menuOverlay" hidden></div>
+  <section class="menu-screen" id="menuScreen" aria-hidden="true">
+    <div class="menu-screen-inner">
+      <p class="menu-screen-kicker">Навигация</p>
+      <nav class="menu-screen-list">
+        <a href="index.html"><span>01</span><b>Главная</b></a>
+        <a href="about.html"><span>02</span><b>О студии</b></a>
+        <a href="portfolio.html"><span>03</span><b>Проекты</b></a>
+        <a href="catalog.html"><span>04</span><b>Услуги</b></a>
+        <a href="tariffs.html"><span>05</span><b>Тарифы</b></a>
+        <a href="workflow.html"><span>06</span><b>Этапы</b></a>
+        <a href="contacts.html"><span>07</span><b>Контакты</b></a>
+        <a href="login.html" data-guest-only><span>08</span><b>Вход</b></a>
+        <a href="register.html" data-guest-only><span>09</span><b>Регистрация</b></a>
+        <a href="cabinet.html" data-auth-only><span>10</span><b>Кабинет</b></a>
+      </nav>
+      <a class="menu-screen-cta" href="service.html">Оставить заявку</a>
+    </div>
+  </section>
+
+  <main class="home-main wh-page wh-inner-main">
+    <section class="wh-inner-hero wh-inner-hero-admin reveal" data-reveal-delay="0">
+      <div class="wh-inner-hero-bg" aria-hidden="true"></div>
+      <a class="wh-top-cta" href="#" data-logout>Выйти</a>
+      <div class="wh-shell wh-split wh-inner-hero-split">
+        <div class="wh-split-body">
+          <h1>Управление услугами, кейсами и статусами заявок.</h1>
+          <p class="wh-lead">Управляйте услугами, кейсами и заявками.</p>
+        </div>
+      </div>
+    </section>
+
+    <div id="adminMessage" class="notice wh-admin-notice"></div>
+
+    <section id="services" class="wh-section wh-inner-section reveal" data-reveal-delay="70">
+      <div class="wh-shell wh-split">
+        <p class="wh-label line-reveal">УСЛУГИ</p>
+        <div class="wh-split-body">
+          <h2>CRUD услуг</h2>
+          <div class="panel">
+            <form id="serviceForm" class="grid grid-2">
+              <div>
+                <label class="label">Название</label>
+                <input class="input" name="name" required>
+              </div>
+              <div>
+                <label class="label">Цена</label>
+                <input class="input" type="number" min="0" name="price" required>
+              </div>
+              <div>
+                <label class="label">Категория</label>
+                <select class="input" name="category" required>
+                  <option value="">Выберите категорию</option>
+                  <option value="Landing">Landing</option>
+                  <option value="Corporate">Corporate</option>
+                  <option value="Store">Store</option>
+                  <option value="Design">Design</option>
+                  <option value="Brand">Brand</option>
+                  <option value="Support">Support</option>
+                </select>
+              </div>
+              <div>
+                <label class="label">Описание</label>
+                <input class="input" name="description" required>
+              </div>
+              <div class="actions wh-inner-actions">
+                <button class="btn wh-btn-flat" type="submit">Добавить услугу</button>
+                <button class="btn wh-btn-flat" id="cancelServiceEdit" type="button" hidden>Отменить</button>
+              </div>
+            </form>
+          </div>
+          <div class="panel table-wrap" style="margin-top:14px;">
+            <table class="table">
+              <thead><tr><th>ID</th><th>Название</th><th>Категория</th><th>Цена</th><th>Действие</th></tr></thead>
+              <tbody id="adminServicesBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="portfolio" class="wh-section wh-inner-section reveal" data-reveal-delay="100">
+      <div class="wh-shell wh-split">
+        <p class="wh-label line-reveal">ПОРТФОЛИО</p>
+        <div class="wh-split-body">
+          <h2>CRUD портфолио</h2>
+          <div class="panel">
+            <form id="portfolioForm" class="grid grid-2">
+              <div>
+                <label class="label">Название</label>
+                <input class="input" name="title" required>
+              </div>
+              <div>
+                <label class="label">ID услуги</label>
+                <input class="input" type="number" min="1" name="service_id">
+              </div>
+              <div>
+                <label class="label">Ссылка на изображение</label>
+                <input class="input" name="image_url" placeholder="assets/img/opitclab.webp">
+              </div>
+              <div>
+                <label class="label">Описание</label>
+                <input class="input" name="description" required>
+              </div>
+              <div class="actions wh-inner-actions">
+                <button class="btn wh-btn-flat" type="submit">Добавить кейс</button>
+                <button class="btn wh-btn-flat" id="cancelPortfolioEdit" type="button" hidden>Отменить</button>
+              </div>
+            </form>
+          </div>
+          <div class="panel table-wrap" style="margin-top:14px;">
+            <table class="table">
+              <thead><tr><th>ID</th><th>Название</th><th>Услуга</th><th>Действие</th></tr></thead>
+              <tbody id="adminPortfolioBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="applications" class="wh-section wh-inner-section reveal wh-admin-applications-section" data-reveal-delay="130">
+      <div class="wh-shell wh-split">
+        <p class="wh-label line-reveal">ЗАЯВКИ</p>
+        <div class="wh-split-body">
+          <h2>Управление заявками</h2>
+          <div class="wh-admin-applications-toolbar">
+            <label class="label" for="adminApplicationsStatusFilter">Фильтр по статусу</label>
+            <select class="input" id="adminApplicationsStatusFilter">
+              <option value="">Все статусы</option>
+              <option value="new">Новые</option>
+              <option value="work">В работе</option>
+              <option value="done">Выполнено</option>
+            </select>
+          </div>
+          <aside class="panel wh-inner-panel wh-admin-application-details" id="adminApplicationDetails" hidden>
+            <div class="wh-admin-detail-head">
+              <h3>Детали заявки <span id="adminDetailAppId">—</span></h3>
+              <button class="btn wh-btn-flat" type="button" data-close-application-details>Закрыть</button>
+            </div>
+            <div class="wh-admin-detail-grid">
+              <p><b>Клиент:</b> <span id="adminDetailLogin">—</span></p>
+              <p><b>Услуга:</b> <span id="adminDetailService">—</span></p>
+              <p><b>Контакт:</b> <span id="adminDetailName">—</span></p>
+              <p><b>Email:</b> <span id="adminDetailEmail">—</span></p>
+              <p><b>Телефон:</b> <span id="adminDetailPhone">—</span></p>
+              <p><b>Статус:</b> <span id="adminDetailStatus">—</span></p>
+            </div>
+            <p class="wh-admin-detail-comment"><b>Комментарий:</b> <span id="adminDetailComment">—</span></p>
+            <p class="wh-admin-detail-history-title"><b>История статусов</b></p>
+            <ul class="wh-admin-detail-history" id="adminDetailHistoryList"></ul>
+          </aside>
+          <div class="panel table-wrap wh-admin-applications-panel">
+            <table class="table wh-admin-applications-table">
+              <thead><tr><th>ID</th><th>Клиент</th><th>Детали</th><th>Услуга</th><th>Статус</th><th>Действие</th></tr></thead>
+              <tbody id="adminApplicationsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wh-footer">
+    <div class="container footer-grid">
+      <div class="wh-footer-brand">
+        <img class="wh-footer-logo" src="assets/img/webhive-logo.svg" alt="WebHive Studio">
+        <span>WebHive Studio</span>
+        <small>© WebHive Studio 2026</small>
+      </div>
+      <div>Administration control panel</div>
+      <div>hello@webhive.studio</div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<svg width="188" height="34" viewBox="0 0 188 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="hiveGrad" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22C55E"/>
+      <stop offset="1" stop-color="#3B82F6"/>
+    </linearGradient>
+  </defs>
+  <rect x="1.5" y="1.5" width="31" height="31" rx="10" stroke="url(#hiveGrad)" stroke-width="2"/>
+  <path d="M11 10L17 6.5L23 10V17L17 20.5L11 17V10Z" fill="url(#hiveGrad)"/>
+  <path d="M11 17L17 20.5L23 17V24L17 27.5L11 24V17Z" fill="#1D4ED8" fill-opacity="0.92"/>
+  <text x="45" y="22" fill="#F8FAFC" font-family="Manrope, Inter, Arial, sans-serif" font-size="18" font-weight="800" letter-spacing="1.8">WEBHIVE</text>
+</svg>
