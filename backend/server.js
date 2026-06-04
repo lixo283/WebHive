@@ -55,6 +55,7 @@ app.use(express.static(path.join(__dirname, '..', 'frontend'), {
   setHeaders(res, filePath) {
     if (/\.(?:html|css|js)$/i.test(filePath)) {
       res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('X-WebHive-Static-Revision', 'scrollbars-v2');
     }
   },
 }));
