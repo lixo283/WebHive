@@ -171,6 +171,8 @@
     if (normalized.includes('contact_email must be a valid email address')) return 'Укажите корректный email для связи.';
     if (normalized.includes('contact_phone must be 7-32 chars')) return 'Укажите корректный телефон для связи.';
     if (normalized.includes('comment must be at least 12 characters')) return 'Комментарий должен быть не короче 12 символов или оставлен пустым.';
+    if (normalized.includes('final_price must be a positive number')) return 'Финальная цена должна быть положительным числом или пустой.';
+    if (normalized.includes('admin_note must contain at most 1000')) return 'Комментарий менеджера не должен быть длиннее 1000 символов.';
     if (normalized.includes('title, image_url, description are required')) return 'Заполните обязательные поля кейса.';
     if (normalized.includes('name, price, category, description are required')) return 'Заполните все поля услуги.';
     if (isAuthError(text)) return 'Сессия истекла. Войдите в аккаунт заново.';
@@ -216,6 +218,22 @@
   function getClientApplicationLabel(row) {
     const number = Number(row?.client_application_number || row?.id);
     return Number.isInteger(number) && number > 0 ? `#${number}` : '#—';
+  }
+
+  function formatFinalPrice(value) {
+    const amount = Number(value);
+    if (!Number.isFinite(amount) || amount <= 0) return '';
+    return `${amount.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽`;
+  }
+
+  function formatFinalPriceInput(value) {
+    const amount = Number(value);
+    if (!Number.isFinite(amount) || amount <= 0) return '';
+    return Number.isInteger(amount) ? String(amount) : amount.toFixed(2);
+  }
+
+  function getFinalPriceText(row) {
+    return formatFinalPrice(row?.final_price) || 'После согласования ТЗ';
   }
 
   function withClientApplicationNumbers(rows) {
@@ -1131,6 +1149,7 @@
       recentList.innerHTML = rows.slice(0, 4).map((row) => {
         const meta = getStatusMeta(row.status);
         const applicationLabel = getClientApplicationLabel(row);
+        const finalPrice = formatFinalPrice(row.final_price);
         return `
           <li class="wh-cabinet-feed-item">
             <div class="wh-cabinet-feed-meta">
@@ -1138,6 +1157,7 @@
               <span class="badge ${meta.badgeClass}">${meta.label}</span>
             </div>
             <p class="wh-cabinet-feed-service">${escapeHtml(row.service_name)}</p>
+            <p class="wh-cabinet-feed-price">${finalPrice ? `Итог: ${escapeHtml(finalPrice)}` : 'Итоговая цена после согласования'}</p>
             <p class="wh-cabinet-feed-date">${new Date(row.created_at).toLocaleDateString('ru-RU')}</p>
           </li>
         `;
@@ -1208,6 +1228,8 @@
             <td class="wh-cabinet-service-cell" data-label="Услуга">
               <span class="wh-cabinet-service-id">ID услуги: #${row.service_id}</span>
               <span class="wh-cabinet-service-name">${escapeHtml(row.service_name)}</span>
+              <span class="wh-cabinet-final-price">Финальная цена: ${escapeHtml(getFinalPriceText(row))}</span>
+              ${row.admin_note ? `<span class="wh-cabinet-admin-note">Комментарий менеджера: ${escapeHtml(row.admin_note)}</span>` : ''}
             </td>
             <td class="wh-cabinet-created-at" data-label="Дата">${new Date(row.created_at).toLocaleDateString('ru-RU')}</td>
             <td class="wh-cabinet-status-cell" data-label="Статус"><span class="badge ${meta.badgeClass}">${meta.label}</span></td>
@@ -1236,7 +1258,7 @@
       return;
     }
     if (user.role !== 'admin') {
-      appBody.innerHTML = '<tr><td colspan="6">Только для администратора.</td></tr>';
+      appBody.innerHTML = '<tr><td colspan="7">Только для администратора.</td></tr>';
       return;
     }
 
@@ -1255,6 +1277,9 @@
     const detailPhone = byId('adminDetailPhone');
     const detailStatus = byId('adminDetailStatus');
     const detailComment = byId('adminDetailComment');
+    const detailFinalPriceText = byId('adminDetailFinalPriceText');
+    const detailFinalPriceInput = byId('adminDetailFinalPriceInput');
+    const detailAdminNoteInput = byId('adminDetailAdminNoteInput');
     const detailHistoryList = byId('adminDetailHistoryList');
     const serviceSubmitButton = serviceForm?.querySelector('button[type="submit"]');
     const portfolioSubmitButton = portfolioForm?.querySelector('button[type="submit"]');
@@ -1300,6 +1325,7 @@
     const fillAdminDetails = (row) => {
       if (!detailsPanel) return;
       detailsPanel.hidden = false;
+      detailsPanel.dataset.applicationId = String(row.id);
       detailsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
       if (detailAppId) detailAppId.textContent = `#${row.id}`;
       if (detailLogin) detailLogin.textContent = row.login || '—';
@@ -1309,6 +1335,9 @@
       if (detailPhone) detailPhone.textContent = row.contact_phone || '—';
       if (detailStatus) detailStatus.textContent = getStatusMeta(row.status).label;
       if (detailComment) detailComment.textContent = row.comment || 'Комментарий не указан';
+      if (detailFinalPriceText) detailFinalPriceText.textContent = getFinalPriceText(row);
+      if (detailFinalPriceInput) detailFinalPriceInput.value = formatFinalPriceInput(row.final_price);
+      if (detailAdminNoteInput) detailAdminNoteInput.value = row.admin_note || '';
       if (detailHistoryList) {
         detailHistoryList.innerHTML = '<li class="wh-admin-detail-empty">Загрузка истории...</li>';
       }
@@ -1404,11 +1433,15 @@
           <tr>
             <td class="wh-admin-id-cell" data-label="ID">#${row.id}</td>
             <td class="wh-admin-client-cell" data-label="Клиент">${escapeHtml(row.login)}</td>
-            <td class="wh-admin-details-cell" data-label="Детали">
-              <button class="btn wh-btn-flat" type="button" data-open-application="${row.id}">Детали</button>
-            </td>
-            <td class="wh-admin-service-cell" data-label="Услуга">${escapeHtml(row.service_name)}</td>
-            <td class="wh-admin-status-cell" data-label="Статус">
+          <td class="wh-admin-details-cell" data-label="Детали">
+            <button class="btn wh-btn-flat" type="button" data-open-application="${row.id}">Детали</button>
+          </td>
+          <td class="wh-admin-service-cell" data-label="Услуга">${escapeHtml(row.service_name)}</td>
+          <td class="wh-admin-price-cell" data-label="Расчет">
+            <span>${escapeHtml(getFinalPriceText(row))}</span>
+            ${row.admin_note ? '<small>есть комментарий</small>' : '<small>без комментария</small>'}
+          </td>
+          <td class="wh-admin-status-cell" data-label="Статус">
               <div class="wh-admin-status">
                 <select data-status-id="${row.id}" data-current-status="${row.status}">
                   <option value="new" ${row.status === 'new' ? 'selected' : ''}>Новая</option>
@@ -1424,7 +1457,7 @@
           </tr>
         `;
         }).join('')
-        : '<tr><td colspan="6">Заявок пока нет.</td></tr>';
+        : '<tr><td colspan="7">Заявок пока нет.</td></tr>';
 
       if (detailsPanel && !rows.length) {
         detailsPanel.hidden = true;
@@ -1532,7 +1565,7 @@
     byId('cancelPortfolioEdit')?.addEventListener('click', () => setPortfolioEditState());
 
     document.addEventListener('click', async (e) => {
-      const target = e.target.closest('button[data-edit-service], button[data-delete-service], button[data-edit-portfolio], button[data-delete-portfolio], button[data-save-status], button[data-open-application], button[data-close-application-details]');
+      const target = e.target.closest('button[data-edit-service], button[data-delete-service], button[data-edit-portfolio], button[data-delete-portfolio], button[data-save-status], button[data-save-application-details], button[data-open-application], button[data-close-application-details]');
       if (!target) return;
 
       const editedServiceId = Number(target.getAttribute('data-edit-service'));
@@ -1612,6 +1645,49 @@
           if (!detailsPanel?.hidden && Number(detailAppId?.textContent?.replace('#', '')) === Number(appId)) {
             await openAdminDetails(Number(appId));
           }
+        } catch (err) {
+          showMessage(message, toUserError(err.message), 'error');
+        } finally {
+          setButtonPending(target, false);
+        }
+      }
+
+      if (target.hasAttribute('data-save-application-details')) {
+        const applicationId = Number(detailsPanel?.dataset.applicationId);
+        if (!Number.isInteger(applicationId) || applicationId < 1) {
+          showMessage(message, 'Откройте заявку перед сохранением расчета.', 'error');
+          return;
+        }
+
+        const row = applicationsById.get(applicationId);
+        const statusSelect = document.querySelector(`select[data-status-id="${applicationId}"]`);
+        const priceValue = String(detailFinalPriceInput?.value || '').trim();
+        const finalPrice = priceValue ? Number(priceValue) : null;
+        const adminNote = String(detailAdminNoteInput?.value || '').trim();
+
+        if (priceValue && (!Number.isFinite(finalPrice) || finalPrice <= 0)) {
+          showMessage(message, 'Финальная цена должна быть положительным числом или пустой.', 'error');
+          return;
+        }
+        if (adminNote.length > 1000) {
+          showMessage(message, 'Комментарий менеджера не должен быть длиннее 1000 символов.', 'error');
+          return;
+        }
+
+        try {
+          setButtonPending(target, true, 'Сохраняем...');
+          await api(`/applications/${applicationId}/status`, {
+            method: 'PATCH',
+            auth: true,
+            body: {
+              status: statusSelect?.value || row?.status || 'new',
+              final_price: finalPrice,
+              admin_note: adminNote || null,
+            },
+          });
+          await refreshApplications();
+          await openAdminDetails(applicationId);
+          showMessage(message, `Расчет по заявке #${applicationId} сохранен.`, 'success');
         } catch (err) {
           showMessage(message, toUserError(err.message), 'error');
         } finally {

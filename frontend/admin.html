@@ -161,14 +161,29 @@
               <p><b>Email:</b> <span id="adminDetailEmail">—</span></p>
               <p><b>Телефон:</b> <span id="adminDetailPhone">—</span></p>
               <p><b>Статус:</b> <span id="adminDetailStatus">—</span></p>
+              <p><b>Финальная цена:</b> <span id="adminDetailFinalPriceText">—</span></p>
             </div>
             <p class="wh-admin-detail-comment"><b>Комментарий:</b> <span id="adminDetailComment">—</span></p>
+            <div class="wh-admin-business-form">
+              <div>
+                <label class="label" for="adminDetailFinalPriceInput">Финальная цена</label>
+                <input class="input" id="adminDetailFinalPriceInput" type="number" min="0" step="1000" placeholder="Например: 145000">
+              </div>
+              <div>
+                <label class="label" for="adminDetailAdminNoteInput">Комментарий менеджера</label>
+                <textarea id="adminDetailAdminNoteInput" rows="4" maxlength="1000" placeholder="Что согласовали с клиентом, что нужно уточнить, следующий шаг"></textarea>
+              </div>
+              <div class="actions wh-inner-actions">
+                <button class="btn wh-btn-flat" type="button" data-save-application-details>Сохранить расчет</button>
+              </div>
+              <p class="wh-admin-business-hint">Эти данные видны клиенту в личном кабинете и фиксируют итог после обсуждения ТЗ.</p>
+            </div>
             <p class="wh-admin-detail-history-title"><b>История статусов</b></p>
             <ul class="wh-admin-detail-history" id="adminDetailHistoryList"></ul>
           </aside>
           <div class="panel table-wrap wh-admin-applications-panel">
             <table class="table wh-admin-applications-table">
-              <thead><tr><th>ID</th><th>Клиент</th><th>Детали</th><th>Услуга</th><th>Статус</th><th>Действие</th></tr></thead>
+              <thead><tr><th>ID</th><th>Клиент</th><th>Детали</th><th>Услуга</th><th>Расчет</th><th>Статус</th><th>Действие</th></tr></thead>
               <tbody id="adminApplicationsBody"></tbody>
             </table>
           </div>

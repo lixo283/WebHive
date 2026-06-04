@@ -3,6 +3,28 @@ const pool = require('../db/pool');
 const VALID_STATUSES = new Set(['new', 'work', 'done']);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[0-9+\-() ]{7,32}$/;
+const MAX_ADMIN_NOTE_LENGTH = 1000;
+
+function hasOwn(value, key) {
+  return Object.prototype.hasOwnProperty.call(value, key);
+}
+
+function parseFinalPrice(value) {
+  const raw = String(value ?? '').trim();
+  if (!raw) return null;
+
+  const amount = Number(raw);
+  if (!Number.isFinite(amount) || amount <= 0 || amount > 999999999.99) {
+    return undefined;
+  }
+  return Math.round(amount * 100) / 100;
+}
+
+function normalizeAdminNote(value) {
+  const note = String(value ?? '').trim();
+  if (!note) return null;
+  return note;
+}
 
 async function createApplication(req, res, next) {
   const client = await pool.connect();
@@ -52,7 +74,7 @@ async function createApplication(req, res, next) {
     const created = await client.query(
       `INSERT INTO applications (user_id, service_id, contact_name, contact_email, contact_phone, comment)
        VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id, user_id, service_id, status, contact_name, contact_email, contact_phone, comment, status_updated_at, updated_at, created_at`,
+       RETURNING id, user_id, service_id, status, contact_name, contact_email, contact_phone, comment, final_price, admin_note, status_updated_at, updated_at, created_at`,
       [req.user.id, serviceId, normalizedName, normalizedEmail, normalizedPhone, normalizedComment || null]
     );
 
@@ -131,6 +153,8 @@ async function listApplications(req, res, next) {
          a.contact_email,
          a.contact_phone,
          a.comment,
+         a.final_price,
+         a.admin_note,
          a.status_updated_at,
          a.updated_at,
          a.created_at
@@ -193,7 +217,7 @@ async function updateApplicationStatus(req, res, next) {
   const client = await pool.connect();
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, final_price, admin_note } = req.body;
     const applicationId = Number(id);
 
     if (!Number.isInteger(applicationId) || applicationId < 1) {
@@ -207,7 +231,7 @@ async function updateApplicationStatus(req, res, next) {
     await client.query('BEGIN');
 
     const current = await client.query(
-      `SELECT id, user_id, service_id, status, contact_name, contact_email, contact_phone, comment, status_updated_at, updated_at, created_at
+      `SELECT id, user_id, service_id, status, contact_name, contact_email, contact_phone, comment, final_price, admin_note, status_updated_at, updated_at, created_at
        FROM applications
        WHERE id = $1`,
       [applicationId]
@@ -218,26 +242,44 @@ async function updateApplicationStatus(req, res, next) {
     }
 
     const currentRow = current.rows[0];
-    if (currentRow.status === status) {
+    const nextFinalPrice = hasOwn(req.body, 'final_price')
+      ? parseFinalPrice(final_price)
+      : currentRow.final_price;
+    if (nextFinalPrice === undefined) {
       await client.query('ROLLBACK');
-      return res.json(currentRow);
+      return res.status(400).json({ error: 'final_price must be a positive number or empty' });
+    }
+
+    const nextAdminNote = hasOwn(req.body, 'admin_note')
+      ? normalizeAdminNote(admin_note)
+      : currentRow.admin_note;
+    if (nextAdminNote && nextAdminNote.length > MAX_ADMIN_NOTE_LENGTH) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'admin_note must contain at most 1000 characters' });
     }
 
     const updated = await client.query(
       `UPDATE applications
        SET status = $1,
-           status_updated_at = NOW(),
+           final_price = $2,
+           admin_note = $3,
+           status_updated_at = CASE
+             WHEN status <> $1 THEN NOW()
+             ELSE status_updated_at
+           END,
            updated_at = NOW()
-       WHERE id = $2
-       RETURNING id, user_id, service_id, status, contact_name, contact_email, contact_phone, comment, status_updated_at, updated_at, created_at`,
-      [status, applicationId]
+       WHERE id = $4
+       RETURNING id, user_id, service_id, status, contact_name, contact_email, contact_phone, comment, final_price, admin_note, status_updated_at, updated_at, created_at`,
+      [status, nextFinalPrice, nextAdminNote, applicationId]
     );
 
-    await client.query(
-      `INSERT INTO application_status_history (application_id, old_status, new_status, changed_by_user_id)
-       VALUES ($1, $2, $3, $4)`,
-      [applicationId, currentRow.status, status, req.user.id]
-    );
+    if (currentRow.status !== status) {
+      await client.query(
+        `INSERT INTO application_status_history (application_id, old_status, new_status, changed_by_user_id)
+         VALUES ($1, $2, $3, $4)`,
+        [applicationId, currentRow.status, status, req.user.id]
+      );
+    }
 
     await client.query('COMMIT');
     return res.json(updated.rows[0]);

@@ -60,10 +60,18 @@ CREATE TABLE IF NOT EXISTS applications (
   contact_email VARCHAR(120),
   contact_phone VARCHAR(32),
   comment TEXT,
+  final_price NUMERIC(12, 2),
+  admin_note TEXT,
   status_updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE applications
+  ADD COLUMN IF NOT EXISTS final_price NUMERIC(12, 2);
+
+ALTER TABLE applications
+  ADD COLUMN IF NOT EXISTS admin_note TEXT;
 
 -- История изменений статусов заявок для аудита действий пользователя или администратора.
 CREATE TABLE IF NOT EXISTS application_status_history (
@@ -114,6 +122,8 @@ COMMENT ON COLUMN applications.contact_name IS 'Контактное имя кл
 COMMENT ON COLUMN applications.contact_email IS 'Контактная электронная почта клиента.';
 COMMENT ON COLUMN applications.contact_phone IS 'Контактный телефон клиента.';
 COMMENT ON COLUMN applications.comment IS 'Комментарий клиента к заявке.';
+COMMENT ON COLUMN applications.final_price IS 'Финальная стоимость, согласованная администратором после обсуждения технического задания.';
+COMMENT ON COLUMN applications.admin_note IS 'Комментарий администратора по расчету, требованиям или следующему действию.';
 COMMENT ON COLUMN applications.status_updated_at IS 'Дата и время последнего изменения статуса.';
 COMMENT ON COLUMN applications.updated_at IS 'Дата и время последнего обновления заявки.';
 COMMENT ON COLUMN applications.created_at IS 'Дата и время создания заявки.';

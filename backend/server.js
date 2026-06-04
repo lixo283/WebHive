@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const { getJwtSecret } = require('./config/security');
+const pool = require('./db/pool');
 const authRoutes = require('./routes/auth');
 const servicesRoutes = require('./routes/services');
 const portfolioRoutes = require('./routes/portfolio');
@@ -14,6 +15,16 @@ const applicationsRoutes = require('./routes/applications');
 getJwtSecret();
 
 const app = express();
+
+async function ensureDatabaseShape() {
+  await pool.query(`
+    ALTER TABLE applications
+      ADD COLUMN IF NOT EXISTS final_price NUMERIC(12, 2);
+
+    ALTER TABLE applications
+      ADD COLUMN IF NOT EXISTS admin_note TEXT;
+  `);
+}
 
 const corsOrigin = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map((v) => v.trim())
@@ -49,7 +60,16 @@ app.use((err, _req, res, _next) => {
 });
 
 const port = Number(process.env.PORT || 3000);
-app.listen(port, () => {
-  // eslint-disable-next-line no-console
-  console.log(`Webstudio server listening on http://localhost:${port}`);
-});
+
+ensureDatabaseShape()
+  .then(() => {
+    app.listen(port, () => {
+      // eslint-disable-next-line no-console
+      console.log(`Webstudio server listening on http://localhost:${port}`);
+    });
+  })
+  .catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error('Failed to prepare database schema', err);
+    process.exit(1);
+  });

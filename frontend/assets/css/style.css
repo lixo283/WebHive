@@ -4060,6 +4060,17 @@ ul {
   color: rgba(240, 248, 252, 0.96);
 }
 
+.webhive-home.wh-inner-site.wh-page-cabinet .wh-cabinet-final-price,
+.webhive-home.wh-inner-site.wh-page-cabinet .wh-cabinet-admin-note {
+  color: rgba(193, 220, 232, 0.84);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.webhive-home.wh-inner-site.wh-page-cabinet .wh-cabinet-admin-note {
+  max-width: 360px;
+}
+
 .webhive-home.wh-inner-site.wh-page-cabinet .wh-cabinet-history-cell {
   white-space: nowrap;
 }
@@ -4158,6 +4169,12 @@ ul {
   margin: 8px 0 0;
   font-size: 0.78rem;
   color: rgba(181, 201, 216, 0.86);
+}
+
+.webhive-home.wh-inner-site.wh-page-cabinet .wh-cabinet-feed-price {
+  margin: 7px 0 0;
+  font-size: 0.8rem;
+  color: rgba(183, 227, 224, 0.86);
 }
 
 .webhive-home.wh-inner-site.wh-page-cabinet .wh-cabinet-feed-empty {
@@ -4426,6 +4443,25 @@ ul {
 .webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-detail-comment {
   margin: 0;
   color: rgba(231, 243, 250, 0.88);
+}
+
+.webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-business-form {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-business-hint,
+.webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-price-cell small {
+  margin: 0;
+  color: rgba(190, 210, 225, 0.72);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-price-cell {
+  display: grid;
+  gap: 4px;
 }
 
 .webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-detail-history-title {
