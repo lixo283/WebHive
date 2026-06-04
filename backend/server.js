@@ -51,7 +51,13 @@ app.use('/api/services', servicesRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/applications', applicationsRoutes);
 
-app.use(express.static(path.join(__dirname, '..', 'frontend')));
+app.use(express.static(path.join(__dirname, '..', 'frontend'), {
+  setHeaders(res, filePath) {
+    if (/\.(?:html|css|js)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  },
+}));
 
 app.use((err, _req, res, _next) => {
   // eslint-disable-next-line no-console

@@ -4363,12 +4363,14 @@ ul {
 }
 
 .webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-applications-panel {
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
 }
 
 .webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-applications-table {
   table-layout: fixed;
-  min-width: 860px;
+  min-width: 980px;
 }
 
 .webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-applications-table th:nth-child(1),
@@ -4386,9 +4388,14 @@ ul {
   width: 116px;
 }
 
+.webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-applications-table th:nth-child(4),
+.webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-applications-table td:nth-child(4) {
+  width: 150px;
+}
+
 .webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-applications-table th:nth-child(5),
 .webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-applications-table td:nth-child(5) {
-  width: 214px;
+  width: 180px;
 }
 
 .webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-applications-table th:nth-child(6),
@@ -4396,8 +4403,18 @@ ul {
   width: 132px;
 }
 
+.webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-applications-table th:nth-child(7),
+.webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-applications-table td:nth-child(7) {
+  width: 118px;
+}
+
 .webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-applications-table td {
   vertical-align: top;
+}
+
+.webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-application-row.is-open td {
+  border-bottom-color: rgba(142, 202, 214, 0.28);
+  background: rgba(96, 165, 250, 0.035);
 }
 
 .webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-client-cell,
@@ -4415,10 +4432,17 @@ ul {
   gap: 8px;
 }
 
+.webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-detail-row > td {
+  padding: 0 0 14px;
+  border-bottom: none;
+  background: transparent;
+}
+
 .webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-application-details {
-  margin: 12px 0;
+  margin: 0 0 12px;
   padding: 16px 18px;
   border-radius: 12px;
+  box-shadow: none;
 }
 
 .webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-application-details h3 {
@@ -4443,6 +4467,7 @@ ul {
 .webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-detail-comment {
   margin: 0;
   color: rgba(231, 243, 250, 0.88);
+  overflow-wrap: anywhere;
 }
 
 .webhive-home.wh-inner-site .wh-inner-hero-admin ~ .wh-section .wh-admin-business-form {
@@ -4916,6 +4941,17 @@ ul {
     border: 1px solid rgba(154, 213, 220, 0.26);
     border-radius: 14px;
     background: rgba(255, 255, 255, 0.035);
+  }
+
+  .webhive-home.wh-inner-site .wh-admin-detail-row {
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .webhive-home.wh-inner-site .wh-admin-detail-row > td {
+    padding: 0 !important;
+    border-bottom: none !important;
   }
 
   .table td {

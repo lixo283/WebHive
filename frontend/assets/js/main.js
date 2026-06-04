@@ -1268,24 +1268,14 @@
     const portfolioBody = byId('adminPortfolioBody');
     const message = byId('adminMessage');
     const statusFilter = byId('adminApplicationsStatusFilter');
-    const detailsPanel = byId('adminApplicationDetails');
-    const detailAppId = byId('adminDetailAppId');
-    const detailLogin = byId('adminDetailLogin');
-    const detailService = byId('adminDetailService');
-    const detailName = byId('adminDetailName');
-    const detailEmail = byId('adminDetailEmail');
-    const detailPhone = byId('adminDetailPhone');
-    const detailStatus = byId('adminDetailStatus');
-    const detailComment = byId('adminDetailComment');
-    const detailFinalPriceText = byId('adminDetailFinalPriceText');
-    const detailFinalPriceInput = byId('adminDetailFinalPriceInput');
-    const detailAdminNoteInput = byId('adminDetailAdminNoteInput');
-    const detailHistoryList = byId('adminDetailHistoryList');
     const serviceSubmitButton = serviceForm?.querySelector('button[type="submit"]');
     const portfolioSubmitButton = portfolioForm?.querySelector('button[type="submit"]');
     const applicationsById = new Map();
+    const applicationHistoryById = new Map();
     const servicesById = new Map();
     const portfolioById = new Map();
+    let currentApplicationRows = [];
+    let openApplicationId = null;
     let editingServiceId = null;
     let editingPortfolioId = null;
 
@@ -1298,13 +1288,20 @@
       field.addEventListener('change', () => clearMessage(message));
     });
 
-    const renderAdminHistory = (historyRows) => {
-      if (!detailHistoryList) return;
-      if (!historyRows.length) {
-        detailHistoryList.innerHTML = '<li class="wh-admin-detail-empty">История изменений пока отсутствует.</li>';
-        return;
+    const renderAdminHistoryItems = (historyState) => {
+      if (!historyState) {
+        return '<li class="wh-admin-detail-empty">Загрузка истории...</li>';
       }
-      detailHistoryList.innerHTML = historyRows.map((item) => {
+      if (historyState.error) {
+        return `<li class="wh-admin-detail-empty">Ошибка истории: ${escapeHtml(historyState.error)}</li>`;
+      }
+
+      const historyRows = historyState.rows || [];
+      if (!historyRows.length) {
+        return '<li class="wh-admin-detail-empty">История изменений пока отсутствует.</li>';
+      }
+
+      return historyRows.map((item) => {
         const oldMeta = item.old_status ? getStatusMeta(item.old_status) : null;
         const newMeta = getStatusMeta(item.new_status);
         const transition = oldMeta
@@ -1322,39 +1319,114 @@
       }).join('');
     };
 
-    const fillAdminDetails = (row) => {
-      if (!detailsPanel) return;
-      detailsPanel.hidden = false;
-      detailsPanel.dataset.applicationId = String(row.id);
-      detailsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      if (detailAppId) detailAppId.textContent = `#${row.id}`;
-      if (detailLogin) detailLogin.textContent = row.login || '—';
-      if (detailService) detailService.textContent = row.service_name || '—';
-      if (detailName) detailName.textContent = row.contact_name || '—';
-      if (detailEmail) detailEmail.textContent = row.contact_email || '—';
-      if (detailPhone) detailPhone.textContent = row.contact_phone || '—';
-      if (detailStatus) detailStatus.textContent = getStatusMeta(row.status).label;
-      if (detailComment) detailComment.textContent = row.comment || 'Комментарий не указан';
-      if (detailFinalPriceText) detailFinalPriceText.textContent = getFinalPriceText(row);
-      if (detailFinalPriceInput) detailFinalPriceInput.value = formatFinalPriceInput(row.final_price);
-      if (detailAdminNoteInput) detailAdminNoteInput.value = row.admin_note || '';
-      if (detailHistoryList) {
-        detailHistoryList.innerHTML = '<li class="wh-admin-detail-empty">Загрузка истории...</li>';
+    const renderAdminDetailsRow = (row, historyState) => {
+      const statusMeta = getStatusMeta(row.status);
+      return `
+        <tr class="wh-admin-detail-row" data-application-details-row="${row.id}">
+          <td colspan="7">
+            <article class="panel wh-inner-panel wh-admin-application-details" data-application-id="${row.id}">
+              <div class="wh-admin-detail-head">
+                <h3>Детали заявки #${row.id}</h3>
+                <button class="btn wh-btn-flat" type="button" data-close-application-details>Закрыть</button>
+              </div>
+              <div class="wh-admin-detail-grid">
+                <p><b>Клиент:</b> ${escapeHtml(row.login || '—')}</p>
+                <p><b>Услуга:</b> ${escapeHtml(row.service_name || '—')}</p>
+                <p><b>Контакт:</b> ${escapeHtml(row.contact_name || '—')}</p>
+                <p><b>Email:</b> ${escapeHtml(row.contact_email || '—')}</p>
+                <p><b>Телефон:</b> ${escapeHtml(row.contact_phone || '—')}</p>
+                <p><b>Статус:</b> ${escapeHtml(statusMeta.label)}</p>
+                <p><b>Финальная цена:</b> ${escapeHtml(getFinalPriceText(row))}</p>
+              </div>
+              <p class="wh-admin-detail-comment"><b>Комментарий:</b> ${escapeHtml(row.comment || 'Комментарий не указан')}</p>
+              <div class="wh-admin-business-form">
+                <div>
+                  <label class="label">Финальная цена</label>
+                  <input class="input" type="number" min="0" step="1000" placeholder="Например: 145000" data-final-price-input value="${escapeHtml(formatFinalPriceInput(row.final_price))}">
+                </div>
+                <div>
+                  <label class="label">Комментарий менеджера</label>
+                  <textarea rows="4" maxlength="1000" placeholder="Что согласовали с клиентом, что нужно уточнить, следующий шаг" data-admin-note-input>${escapeHtml(row.admin_note || '')}</textarea>
+                </div>
+                <div class="actions wh-inner-actions">
+                  <button class="btn wh-btn-flat" type="button" data-save-application-details="${row.id}">Сохранить расчет</button>
+                </div>
+                <p class="wh-admin-business-hint">Эти данные видны клиенту в личном кабинете и фиксируют итог после обсуждения ТЗ.</p>
+              </div>
+              <p class="wh-admin-detail-history-title"><b>История статусов</b></p>
+              <ul class="wh-admin-detail-history">${renderAdminHistoryItems(historyState)}</ul>
+            </article>
+          </td>
+        </tr>
+      `;
+    };
+
+    const renderAdminApplicationRow = (row) => {
+      const meta = getStatusMeta(row.status);
+      return `
+        <tr class="wh-admin-application-row ${openApplicationId === row.id ? 'is-open' : ''}" data-application-row="${row.id}">
+          <td class="wh-admin-id-cell" data-label="ID">#${row.id}</td>
+          <td class="wh-admin-client-cell" data-label="Клиент">${escapeHtml(row.login)}</td>
+          <td class="wh-admin-details-cell" data-label="Детали">
+            <button class="btn wh-btn-flat" type="button" data-open-application="${row.id}" aria-expanded="${openApplicationId === row.id ? 'true' : 'false'}">
+              ${openApplicationId === row.id ? 'Скрыть' : 'Детали'}
+            </button>
+          </td>
+          <td class="wh-admin-service-cell" data-label="Услуга">${escapeHtml(row.service_name)}</td>
+          <td class="wh-admin-price-cell" data-label="Расчет">
+            <span>${escapeHtml(getFinalPriceText(row))}</span>
+            ${row.admin_note ? '<small>есть комментарий</small>' : '<small>без комментария</small>'}
+          </td>
+          <td class="wh-admin-status-cell" data-label="Статус">
+            <div class="wh-admin-status">
+              <select data-status-id="${row.id}" data-current-status="${row.status}">
+                <option value="new" ${row.status === 'new' ? 'selected' : ''}>Новая</option>
+                <option value="work" ${row.status === 'work' ? 'selected' : ''}>В работе</option>
+                <option value="done" ${row.status === 'done' ? 'selected' : ''}>Выполнено</option>
+              </select>
+              <small class="wh-admin-status-note">Сейчас: ${meta.label}</small>
+            </div>
+          </td>
+          <td class="wh-admin-action-cell" data-label="Действие">
+            <button class="btn" data-save-status="${row.id}">Сохранить</button>
+          </td>
+        </tr>
+      `;
+    };
+
+    const renderApplicationsTable = () => {
+      if (!currentApplicationRows.length) {
+        appBody.innerHTML = '<tr><td colspan="7">Заявок пока нет.</td></tr>';
+        return;
       }
+
+      appBody.innerHTML = currentApplicationRows.map((row) => {
+        const detailsRow = openApplicationId === row.id
+          ? renderAdminDetailsRow(row, applicationHistoryById.get(row.id))
+          : '';
+        return `${renderAdminApplicationRow(row)}${detailsRow}`;
+      }).join('');
+    };
+
+    const closeAdminDetails = () => {
+      openApplicationId = null;
+      applicationHistoryById.clear();
+      renderApplicationsTable();
     };
 
     const openAdminDetails = async (applicationId) => {
       const row = applicationsById.get(applicationId);
       if (!row) return;
-      fillAdminDetails(row);
+      openApplicationId = applicationId;
+      applicationHistoryById.delete(applicationId);
+      renderApplicationsTable();
       try {
         const historyRows = await api(`/applications/${applicationId}/history`, { auth: true });
-        renderAdminHistory(historyRows);
+        applicationHistoryById.set(applicationId, { rows: historyRows });
       } catch (err) {
-        if (detailHistoryList) {
-          detailHistoryList.innerHTML = `<li class="wh-admin-detail-empty">Ошибка истории: ${escapeHtml(toUserError(err.message))}</li>`;
-        }
+        applicationHistoryById.set(applicationId, { error: toUserError(err.message) });
       }
+      renderApplicationsTable();
     };
 
     async function refreshServices() {
@@ -1424,44 +1496,14 @@
       const status = String(statusFilter?.value || '').trim();
       const query = status ? `/applications?status=${encodeURIComponent(status)}` : '/applications';
       const rows = await api(query, { auth: true });
+      currentApplicationRows = rows;
       applicationsById.clear();
       rows.forEach((row) => applicationsById.set(row.id, row));
-      appBody.innerHTML = rows.length
-        ? rows.map((row) => {
-          const meta = getStatusMeta(row.status);
-          return `
-          <tr>
-            <td class="wh-admin-id-cell" data-label="ID">#${row.id}</td>
-            <td class="wh-admin-client-cell" data-label="Клиент">${escapeHtml(row.login)}</td>
-          <td class="wh-admin-details-cell" data-label="Детали">
-            <button class="btn wh-btn-flat" type="button" data-open-application="${row.id}">Детали</button>
-          </td>
-          <td class="wh-admin-service-cell" data-label="Услуга">${escapeHtml(row.service_name)}</td>
-          <td class="wh-admin-price-cell" data-label="Расчет">
-            <span>${escapeHtml(getFinalPriceText(row))}</span>
-            ${row.admin_note ? '<small>есть комментарий</small>' : '<small>без комментария</small>'}
-          </td>
-          <td class="wh-admin-status-cell" data-label="Статус">
-              <div class="wh-admin-status">
-                <select data-status-id="${row.id}" data-current-status="${row.status}">
-                  <option value="new" ${row.status === 'new' ? 'selected' : ''}>Новая</option>
-                  <option value="work" ${row.status === 'work' ? 'selected' : ''}>В работе</option>
-                  <option value="done" ${row.status === 'done' ? 'selected' : ''}>Выполнено</option>
-                </select>
-                <small class="wh-admin-status-note">Сейчас: ${meta.label}</small>
-              </div>
-            </td>
-            <td class="wh-admin-action-cell" data-label="Действие">
-              <button class="btn" data-save-status="${row.id}">Сохранить</button>
-            </td>
-          </tr>
-        `;
-        }).join('')
-        : '<tr><td colspan="7">Заявок пока нет.</td></tr>';
-
-      if (detailsPanel && !rows.length) {
-        detailsPanel.hidden = true;
+      if (openApplicationId && !applicationsById.has(openApplicationId)) {
+        openApplicationId = null;
+        applicationHistoryById.clear();
       }
+      renderApplicationsTable();
     }
 
     serviceForm.addEventListener('submit', async (e) => {
@@ -1557,8 +1599,9 @@
 
     statusFilter?.addEventListener('change', async () => {
       clearMessage(message);
+      openApplicationId = null;
+      applicationHistoryById.clear();
       await refreshApplications();
-      if (detailsPanel) detailsPanel.hidden = true;
     });
 
     byId('cancelServiceEdit')?.addEventListener('click', () => setServiceEditState());
@@ -1622,8 +1665,9 @@
           return;
         }
 
+        const nextStatus = select.value;
         const currentStatus = select.getAttribute('data-current-status') || '';
-        if (select.value === currentStatus) {
+        if (nextStatus === currentStatus) {
           clearMessage(message);
           return;
         }
@@ -1633,16 +1677,16 @@
           await api(`/applications/${appId}/status`, {
             method: 'PATCH',
             auth: true,
-            body: { status: select.value },
+            body: { status: nextStatus },
           });
           await refreshApplications();
-          const nextMeta = getStatusMeta(select.value);
-          if (select.value === 'done') {
+          const nextMeta = getStatusMeta(nextStatus);
+          if (nextStatus === 'done') {
             showMessage(message, `Заявка #${appId} отмечена как «${nextMeta.label}».`, 'success');
           } else {
             clearMessage(message);
           }
-          if (!detailsPanel?.hidden && Number(detailAppId?.textContent?.replace('#', '')) === Number(appId)) {
+          if (openApplicationId === Number(appId)) {
             await openAdminDetails(Number(appId));
           }
         } catch (err) {
@@ -1652,18 +1696,22 @@
         }
       }
 
-      if (target.hasAttribute('data-save-application-details')) {
-        const applicationId = Number(detailsPanel?.dataset.applicationId);
+      const detailSaveId = target.getAttribute('data-save-application-details');
+      if (detailSaveId) {
+        const applicationId = Number(detailSaveId);
         if (!Number.isInteger(applicationId) || applicationId < 1) {
           showMessage(message, 'Откройте заявку перед сохранением расчета.', 'error');
           return;
         }
 
+        const detailsRow = target.closest('[data-application-details-row]');
         const row = applicationsById.get(applicationId);
         const statusSelect = document.querySelector(`select[data-status-id="${applicationId}"]`);
-        const priceValue = String(detailFinalPriceInput?.value || '').trim();
+        const priceInput = detailsRow?.querySelector('[data-final-price-input]');
+        const noteInput = detailsRow?.querySelector('[data-admin-note-input]');
+        const priceValue = String(priceInput?.value || '').trim();
         const finalPrice = priceValue ? Number(priceValue) : null;
-        const adminNote = String(detailAdminNoteInput?.value || '').trim();
+        const adminNote = String(noteInput?.value || '').trim();
 
         if (priceValue && (!Number.isFinite(finalPrice) || finalPrice <= 0)) {
           showMessage(message, 'Финальная цена должна быть положительным числом или пустой.', 'error');
@@ -1697,11 +1745,16 @@
 
       const openId = target.getAttribute('data-open-application');
       if (openId) {
-        await openAdminDetails(Number(openId));
+        const applicationId = Number(openId);
+        if (openApplicationId === applicationId) {
+          closeAdminDetails();
+          return;
+        }
+        await openAdminDetails(applicationId);
       }
 
-      if (target.hasAttribute('data-close-application-details') && detailsPanel) {
-        detailsPanel.hidden = true;
+      if (target.hasAttribute('data-close-application-details')) {
+        closeAdminDetails();
       }
     });
 
