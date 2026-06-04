@@ -213,6 +213,33 @@
     return STATUS_META[status] || STATUS_META.new;
   }
 
+  function getClientApplicationLabel(row) {
+    const number = Number(row?.client_application_number || row?.id);
+    return Number.isInteger(number) && number > 0 ? `#${number}` : '#—';
+  }
+
+  function withClientApplicationNumbers(rows) {
+    const orderedRows = [...rows].sort((a, b) => {
+      const aDate = Date.parse(a.created_at || '') || 0;
+      const bDate = Date.parse(b.created_at || '') || 0;
+      return aDate - bDate || Number(a.id) - Number(b.id);
+    });
+    const numbersById = new Map();
+    orderedRows.forEach((row, index) => {
+      numbersById.set(Number(row.id), index + 1);
+    });
+
+    return rows.map((row) => {
+      const serverNumber = Number(row.client_application_number);
+      return {
+        ...row,
+        client_application_number: Number.isInteger(serverNumber) && serverNumber > 0
+          ? serverNumber
+          : numbersById.get(Number(row.id)),
+      };
+    });
+  }
+
   async function api(path, options = {}) {
     const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
     if (options.auth) {
@@ -460,7 +487,10 @@
         </div>
         <p class="wh-service-desc">${escapeHtml(item.description)}</p>
         <div class="wh-service-meta">
-          <p class="wh-service-price">от ${Number(item.price).toLocaleString('ru-RU')} ₽</p>
+          <div>
+            <p class="wh-service-price">от ${Number(item.price).toLocaleString('ru-RU')} ₽</p>
+            <span class="wh-service-price-note">стартовая цена</span>
+          </div>
           <a class="wh-service-link" href="service.html?id=${Number.isInteger(id) ? id : ''}">Подробнее</a>
         </div>
       </article>
@@ -825,7 +855,7 @@
         const service = await api(`/services/${serviceId}`);
         byId('serviceTitle').textContent = service.name;
         byId('serviceDescription').textContent = service.description;
-        byId('servicePrice').textContent = `Тариф: от ${Number(service.price).toLocaleString('ru-RU')} ₽`;
+        byId('servicePrice').textContent = `Стартовая цена: от ${Number(service.price).toLocaleString('ru-RU')} ₽`;
         if (serviceSelect) serviceSelect.value = String(service.id);
       } else {
         byId('servicePrice').textContent = '';
@@ -888,7 +918,7 @@
 
       try {
         setButtonPending(submitButton, true, 'Отправляем...');
-        await api('/applications', {
+        const createdApplication = await api('/applications', {
           method: 'POST',
           body: {
             service_id,
@@ -899,7 +929,7 @@
           },
           auth: true,
         });
-        showMessage(message, 'Заявка отправлена. Мы свяжемся с вами в ближайшее время.', 'success');
+        showMessage(message, `Заявка ${getClientApplicationLabel(createdApplication)} отправлена. Мы свяжемся с вами в ближайшее время.`, 'success');
         form.reset();
         if (serviceId && serviceSelect) {
           serviceSelect.value = String(serviceId);
@@ -1100,10 +1130,11 @@
 
       recentList.innerHTML = rows.slice(0, 4).map((row) => {
         const meta = getStatusMeta(row.status);
+        const applicationLabel = getClientApplicationLabel(row);
         return `
           <li class="wh-cabinet-feed-item">
             <div class="wh-cabinet-feed-meta">
-              <strong>#${row.id}</strong>
+              <strong>${applicationLabel}</strong>
               <span class="badge ${meta.badgeClass}">${meta.label}</span>
             </div>
             <p class="wh-cabinet-feed-service">${escapeHtml(row.service_name)}</p>
@@ -1141,7 +1172,7 @@
       const row = rowsById.get(applicationId);
       if (!row) return;
       historyPanel.hidden = false;
-      historyAppId.textContent = `#${applicationId}`;
+      historyAppId.textContent = getClientApplicationLabel(row);
       historyList.innerHTML = '<li class="wh-cabinet-history-empty">Загрузка...</li>';
 
       try {
@@ -1161,7 +1192,7 @@
     });
 
     try {
-      const rows = await api('/applications', { auth: true });
+      const rows = withClientApplicationNumbers(await api('/applications', { auth: true }));
       rowsById.clear();
       rows.forEach((row) => rowsById.set(row.id, row));
       updateCabinetSummary(rows);
@@ -1169,10 +1200,11 @@
       body.innerHTML = rows.length
         ? rows.map((row) => {
           const meta = getStatusMeta(row.status);
+          const applicationLabel = getClientApplicationLabel(row);
           const updatedDate = new Date(row.status_updated_at || row.created_at).toLocaleDateString('ru-RU');
           return `
           <tr>
-            <td class="wh-cabinet-app-id" data-label="Заявка">#${row.id}</td>
+            <td class="wh-cabinet-app-id" data-label="Заявка">${applicationLabel}</td>
             <td class="wh-cabinet-service-cell" data-label="Услуга">
               <span class="wh-cabinet-service-id">ID услуги: #${row.service_id}</span>
               <span class="wh-cabinet-service-name">${escapeHtml(row.service_name)}</span>
@@ -1305,7 +1337,7 @@
           <td data-label="ID">${s.id}</td>
           <td data-label="Название">${escapeHtml(s.name)}</td>
           <td data-label="Категория">${escapeHtml(s.category)}</td>
-          <td data-label="Цена">${Number(s.price).toLocaleString('ru-RU')} ₽</td>
+          <td data-label="Стартовая цена">от ${Number(s.price).toLocaleString('ru-RU')} ₽</td>
           <td class="wh-admin-action-cell" data-label="Действие">
             <button class="btn" type="button" data-edit-service="${s.id}">Изменить</button>
             <button class="btn" type="button" data-delete-service="${s.id}">Удалить</button>
@@ -1411,7 +1443,7 @@
         return;
       }
       if (!Number.isFinite(price) || price <= 0) {
-        showMessage(message, 'Укажите корректную цену услуги (больше 0).', 'error');
+        showMessage(message, 'Укажите корректную стартовую цену услуги (больше 0).', 'error');
         return;
       }
       if (!category) {

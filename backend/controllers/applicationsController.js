@@ -62,8 +62,22 @@ async function createApplication(req, res, next) {
       [created.rows[0].id, created.rows[0].status, req.user.id]
     );
 
+    const clientNumber = await client.query(
+      `SELECT COUNT(*)::int AS client_application_number
+       FROM applications
+       WHERE user_id = $1
+         AND (
+           created_at < $2
+           OR (created_at = $2 AND id <= $3)
+         )`,
+      [req.user.id, created.rows[0].created_at, created.rows[0].id]
+    );
+
     await client.query('COMMIT');
-    return res.status(201).json(created.rows[0]);
+    return res.status(201).json({
+      ...created.rows[0],
+      client_application_number: clientNumber.rows[0].client_application_number,
+    });
   } catch (err) {
     try {
       await client.query('ROLLBACK');
@@ -99,8 +113,15 @@ async function listApplications(req, res, next) {
 
     const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
     const result = await pool.query(
-      `SELECT
+      `WITH numbered_applications AS (
+         SELECT
+           a.*,
+           (ROW_NUMBER() OVER (PARTITION BY a.user_id ORDER BY a.created_at ASC, a.id ASC))::int AS client_application_number
+         FROM applications a
+       )
+       SELECT
          a.id,
+         a.client_application_number,
          a.user_id,
          u.login,
          a.service_id,
@@ -113,7 +134,7 @@ async function listApplications(req, res, next) {
          a.status_updated_at,
          a.updated_at,
          a.created_at
-       FROM applications a
+       FROM numbered_applications a
        JOIN users u ON u.id = a.user_id
        JOIN services s ON s.id = a.service_id
        ${whereSql}
