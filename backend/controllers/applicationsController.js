@@ -2,11 +2,34 @@ const pool = require('../db/pool');
 
 const VALID_STATUSES = new Set(['new', 'work', 'done']);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_RE = /^[0-9+\-() ]{7,32}$/;
 const MAX_ADMIN_NOTE_LENGTH = 1000;
 
 function hasOwn(value, key) {
   return Object.prototype.hasOwnProperty.call(value, key);
+}
+
+function getRussianPhoneLocalDigits(value) {
+  const digits = String(value || '').replace(/\D/g, '');
+
+  if (digits.length === 10) {
+    return digits;
+  }
+
+  if (digits.length === 11 && (digits.startsWith('7') || digits.startsWith('8'))) {
+    return digits.slice(1);
+  }
+
+  return null;
+}
+
+function formatRussianPhone(localDigits) {
+  return `+7 (${localDigits.slice(0, 3)}) ${localDigits.slice(3, 6)} ${localDigits.slice(6, 8)} ${localDigits.slice(8, 10)}`;
+}
+
+function normalizeRussianPhone(value) {
+  const localDigits = getRussianPhoneLocalDigits(value);
+  if (!localDigits) return null;
+  return formatRussianPhone(localDigits);
 }
 
 function parseFinalPrice(value) {
@@ -43,7 +66,7 @@ async function createApplication(req, res, next) {
 
     const normalizedName = String(contact_name || '').trim();
     const normalizedEmail = String(contact_email || '').trim();
-    const normalizedPhone = String(contact_phone || '').trim();
+    const normalizedPhone = normalizeRussianPhone(contact_phone);
     const normalizedComment = String(comment || '').trim();
 
     if (normalizedName.length < 2) {
@@ -52,8 +75,8 @@ async function createApplication(req, res, next) {
     if (!normalizedEmail || !EMAIL_RE.test(normalizedEmail)) {
       return res.status(400).json({ error: 'contact_email must be a valid email address' });
     }
-    if (!normalizedPhone || !PHONE_RE.test(normalizedPhone)) {
-      return res.status(400).json({ error: 'contact_phone must be 7-32 chars and contain only digits or +()- spaces' });
+    if (!normalizedPhone) {
+      return res.status(400).json({ error: 'contact_phone must match +7 (999) 999 99 99' });
     }
     if (normalizedComment && normalizedComment.length < 12) {
       return res.status(400).json({ error: 'comment must be at least 12 characters or empty' });

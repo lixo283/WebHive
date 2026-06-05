@@ -169,7 +169,8 @@
     if (normalized.includes('service not found')) return 'Выбранная услуга не найдена. Обновите страницу и попробуйте снова.';
     if (normalized.includes('contact_name must contain at least 2 characters')) return 'Укажите контактное лицо (минимум 2 символа).';
     if (normalized.includes('contact_email must be a valid email address')) return 'Укажите корректный email для связи.';
-    if (normalized.includes('contact_phone must be 7-32 chars')) return 'Укажите корректный телефон для связи.';
+    if (normalized.includes('contact_phone must match')) return 'Укажите телефон в формате +7 (999) 999 99 99.';
+    if (normalized.includes('contact_phone must be 7-32 chars')) return 'Укажите телефон в формате +7 (999) 999 99 99.';
     if (normalized.includes('comment must be at least 12 characters')) return 'Комментарий должен быть не короче 12 символов или оставлен пустым.';
     if (normalized.includes('final_price must be a positive number')) return 'Финальная цена должна быть положительным числом или пустой.';
     if (normalized.includes('admin_note must contain at most 1000')) return 'Комментарий менеджера не должен быть длиннее 1000 символов.';
@@ -207,6 +208,64 @@
     window.addEventListener('pageshow', (event) => {
       if (!window.location.hash && event.persisted) {
         resetScrollTop();
+      }
+    });
+  }
+
+  function getRussianPhoneLocalDigits(value) {
+    const digits = String(value || '').replace(/\D/g, '');
+
+    if (digits.startsWith('8')) {
+      return digits.slice(1, 11);
+    }
+
+    if (digits.startsWith('7')) {
+      return digits.slice(1, 11);
+    }
+
+    return digits.slice(0, 10);
+  }
+
+  function formatRussianPhoneInput(value) {
+    const local = getRussianPhoneLocalDigits(value);
+    if (!local) return '';
+
+    let formatted = '+7';
+    if (local.length > 0) formatted += ` (${local.slice(0, 3)}`;
+    if (local.length >= 3) formatted += ')';
+    if (local.length > 3) formatted += ` ${local.slice(3, 6)}`;
+    if (local.length > 6) formatted += ` ${local.slice(6, 8)}`;
+    if (local.length > 8) formatted += ` ${local.slice(8, 10)}`;
+
+    return formatted;
+  }
+
+  function isCompleteRussianPhone(value) {
+    return /^\+7 \(\d{3}\) \d{3} \d{2} \d{2}$/.test(formatRussianPhoneInput(value));
+  }
+
+  function bindRussianPhoneMask(input) {
+    if (!input) return;
+
+    input.setAttribute('type', 'tel');
+    input.setAttribute('inputmode', 'tel');
+    input.setAttribute('autocomplete', 'tel');
+    input.setAttribute('maxlength', '18');
+    input.setAttribute('placeholder', '+7 (900) 000 00 00');
+
+    input.addEventListener('focus', () => {
+      if (!input.value.trim()) {
+        input.value = '+7 ';
+      }
+    });
+
+    input.addEventListener('input', () => {
+      input.value = formatRussianPhoneInput(input.value);
+    });
+
+    input.addEventListener('blur', () => {
+      if (getRussianPhoneLocalDigits(input.value).length === 0) {
+        input.value = '';
       }
     });
   }
@@ -860,6 +919,8 @@
     const serviceId = rawId ? Number(rawId) : null;
     let services = [];
 
+    bindRussianPhoneMask(contactPhoneField);
+
     try {
       services = await api('/services');
       if (serviceSelect) {
@@ -907,10 +968,9 @@
       const service_id = Number(serviceSelect?.value || 0);
       const contact_name = String(contactNameField?.value || '').trim();
       const contact_email = String(contactEmailField?.value || '').trim();
-      const contact_phone = String(contactPhoneField?.value || '').trim();
+      const contact_phone = formatRussianPhoneInput(contactPhoneField?.value || '');
       const comment = String(commentField?.value || '').trim();
       const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const phoneRe = /^[0-9+\-() ]{7,32}$/;
 
       if (!Number.isInteger(service_id) || service_id < 1) {
         showMessage(message, 'Выберите услугу перед отправкой заявки.', 'error');
@@ -924,9 +984,12 @@
         showMessage(message, 'Укажите корректный email для связи.', 'error');
         return;
       }
-      if (!phoneRe.test(contact_phone)) {
-        showMessage(message, 'Укажите корректный телефон для связи.', 'error');
+      if (!isCompleteRussianPhone(contact_phone)) {
+        showMessage(message, 'Укажите телефон в формате +7 (999) 999 99 99.', 'error');
         return;
+      }
+      if (contactPhoneField) {
+        contactPhoneField.value = contact_phone;
       }
 
       if (comment && comment.length < 12) {
