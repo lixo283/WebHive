@@ -17,7 +17,7 @@
   </aside>
 
   <div class="menu-overlay" id="menuOverlay" hidden></div>
-  <section class="menu-screen" id="menuScreen" aria-hidden="true">
+  <section class="menu-screen" id="menuScreen" aria-hidden="true" inert>
     <div class="menu-screen-inner">
       <p class="menu-screen-kicker">Навигация</p>
       <nav class="menu-screen-list">
@@ -39,7 +39,7 @@
   <main class="home-main wh-page">
     <section class="wh-hero reveal" data-reveal-delay="0">
       <div class="wh-hero-bg" aria-hidden="true">
-        <video class="wh-hero-video" autoplay muted loop playsinline poster="assets/img/fon6.webp">
+        <video class="wh-hero-video" preload="none" muted loop playsinline poster="assets/img/fon6.webp">
           <source src="assets/img/webhive-hero2-optimized.mp4" type="video/mp4">
         </video>
         <div class="wh-hero-tint"></div>
@@ -50,6 +50,7 @@
         <span>WebHive Studio</span>
       </div>
 
+      <button class="hero-video-toggle" id="heroVideoToggle" type="button">Включить видеофон</button>
       <div class="wh-shell wh-hero-content">
         <h1>WebHive Studio — сайты для роста бизнеса.</h1>
         <p>
@@ -80,20 +81,20 @@
 
             <div class="wh-stats">
               <article class="wh-stat">
-                <p class="wh-stat-number">00</p>
-                <p>Негативных отзывов за все время работы</p>
+                <p class="wh-stat-number">03</p>
+                <p>Роли: гость, клиент и администратор</p>
               </article>
               <article class="wh-stat">
-                <p class="wh-stat-number">36</p>
-                <p>Реализованных проектов за 2 года</p>
+                <p class="wh-stat-number">12</p>
+                <p>Страниц с общим интерфейсом</p>
               </article>
               <article class="wh-stat">
-                <p class="wh-stat-number">50</p>
-                <p>В топ 50 РФ более чем по 36 срезов</p>
+                <p class="wh-stat-number">05</p>
+                <p>Связанных таблиц PostgreSQL</p>
               </article>
               <article class="wh-stat">
-                <p class="wh-stat-number">85</p>
-                <p>% сокращения расходов при сотрудничестве</p>
+                <p class="wh-stat-number">03</p>
+                <p>Статуса заявки с историей изменений</p>
               </article>
             </div>
           </div>
@@ -106,7 +107,7 @@
         <p class="wh-label line-reveal wh-label-under-line">ПРОЕКТЫ WEBHIVE STUDIO</p>
         <div class="wh-split-body">
           <h2>Проекты</h2>
-          <p class="wh-lead">Реальные сайты клиентов из разных ниш: от медицины до логистики и авто.</p>
+          <p class="wh-lead">Демонстрационные кейсы для каталога веб-студии. Изображения показывают сценарий интерфейса, а не коммерческий опыт автора.</p>
 
           <div class="wh-projects-grid" id="projectsShowcase">
             <div class="wh-projects-nav" role="tablist" aria-label="Список проектов">
@@ -172,7 +173,7 @@
       <div class="wh-shell wh-split wh-showcase-split">
         <div class="wh-split-body wh-showcase-body">
           <h2>Наши работы — результат нашей экспертизы</h2>
-          <p class="wh-lead">Каждый проект повышает конверсию.</p>
+          <p class="wh-lead">Примеры подачи проектов в интерфейсе веб-студии.</p>
         </div>
       </div>
     </section>
@@ -270,10 +271,11 @@
 
     <section class="wh-reviews reveal" id="contacts" data-reveal-delay="200">
       <div class="wh-shell wh-split wh-reviews-split">
-        <p class="wh-label wh-review-label line-reveal wh-label-under-line">ОТЗЫВЫ И РЕЗУЛЬТАТЫ</p>
+        <p class="wh-label wh-review-label line-reveal wh-label-under-line">ДЕМО ОТЗЫВОВ</p>
         <div class="wh-reviews-body">
         <div class="wh-reviews-head">
-          <h2>Результаты, которые говорят сами за себя</h2>
+          <h2>Примеры отзывов</h2>
+          <p>Вымышленные отзывы для демонстрации интерфейса.</p>
           <a class="wh-top-cta wh-top-cta-light" href="service.html">Оставить заявку</a>
         </div>
 
@@ -355,6 +357,8 @@
     </div>
   </footer>
 
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/demo.js"></script>
   <script src="assets/js/main.js"></script>
 </body>
 </html>

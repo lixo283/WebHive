@@ -1,13 +1,14 @@
 (() => {
-  const isLocalStaticPreview =
-    ['localhost', '127.0.0.1'].includes(window.location.hostname) &&
-    window.location.port &&
-    window.location.port !== '3000';
-  const API_BASE =
-    window.__API_BASE__ ||
-    (isLocalStaticPreview ? 'http://localhost:3000/api' : '/api');
-  const TOKEN_KEY = 'ws_token';
-  const USER_KEY = 'ws_user';
+  const IS_DEMO = window.WEBHIVE_MODE === 'demo';
+  const API_BASE = window.__API_BASE__ || '/api';
+  const TOKEN_KEY = IS_DEMO ? 'webhive:demo:token' : 'ws_token';
+  const USER_KEY = IS_DEMO ? 'webhive:demo:user' : 'ws_user';
+  // Resolve storage lazily so public pages still render when storage is blocked.
+  const demoStore = IS_DEMO ? window.WebHiveDemo.createStore({
+    getItem: key => localStorage.getItem(key),
+    setItem: (key, value) => localStorage.setItem(key, value),
+    removeItem: key => localStorage.removeItem(key),
+  }) : null;
   const STATUS_META = {
     new: { label: 'Новая', badgeClass: 'badge-new' },
     work: { label: 'В работе', badgeClass: 'badge-progress' },
@@ -85,17 +86,15 @@
   }
 
   function getToken() {
-    return localStorage.getItem(TOKEN_KEY);
+    try { return localStorage.getItem(TOKEN_KEY); } catch (_) { return null; }
   }
 
   function getUser() {
-    const raw = localStorage.getItem(USER_KEY);
-    if (!raw) return null;
-
     try {
+      const raw = localStorage.getItem(USER_KEY);
+      if (!raw) return null;
       return JSON.parse(raw);
     } catch (_err) {
-      clearSession();
       return null;
     }
   }
@@ -106,8 +105,10 @@
   }
 
   function clearSession() {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    try {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+    } catch (_) { /* Storage can be disabled in private browsing. */ }
   }
 
   function isAuthError(message) {
@@ -161,7 +162,7 @@
     if (normalized.includes('invalid credentials')) return 'Неверный логин или пароль.';
     if (normalized.includes('login already exists')) return 'Пользователь с таким логином уже существует.';
     if (normalized.includes('login must contain 3-32')) return 'Логин: 3-32 символа, только латиница, цифры, ".", "_" и "-".';
-    if (normalized.includes('password must contain 8-72')) return 'Пароль должен содержать от 8 до 72 символов.';
+    if (normalized.includes('password must contain 8-72')) return 'Пароль: минимум 8 символов, максимум 72 байта UTF-8.';
     if (normalized.includes('invalid login or password format')) return 'Проверьте формат логина и пароля.';
     if (normalized.includes('service_id is required')) return 'Выберите услугу перед отправкой заявки.';
     if (normalized.includes('service_id must be a positive integer')) return 'Выберите корректную услугу из списка.';
@@ -318,29 +319,62 @@
   }
 
   async function api(path, options = {}) {
+    if (IS_DEMO) return demoStore.request(path, options, getUser());
     const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
-    if (options.auth) {
-      const token = getToken();
-      if (token) headers.Authorization = `Bearer ${token}`;
-    }
-
-    const response = await fetch(`${API_BASE}${path}`, {
-      method: options.method || 'GET',
-      headers,
-      body: options.body ? JSON.stringify(options.body) : undefined,
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      const message = data.error || `HTTP ${response.status}`;
-      const error = new Error(message);
-      error.status = response.status;
-      if (options.auth && (response.status === 401 || isAuthError(message))) {
-        redirectToLogin();
+    if (options.auth && getToken()) headers.Authorization = `Bearer ${getToken()}`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
+    try {
+      const response = await fetch(`${API_BASE}${path}`, {
+        method: options.method || 'GET', headers, signal: controller.signal,
+        body: options.body ? JSON.stringify(options.body) : undefined,
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        if (options.auth && response.status === 401) redirectToLogin();
+        throw Object.assign(new Error(data.error || `HTTP ${response.status}`), { status: response.status });
       }
-      throw error;
+      return data;
+    } catch (err) {
+      if (controller.signal.aborted) throw new Error('Сервер не ответил за 12 секунд. Обновите список. Перед повторной отправкой заявки проверьте кабинет.');
+      if (err instanceof TypeError) throw new Error('Нет связи с сервером. Проверьте подключение.');
+      throw err;
+    } finally { clearTimeout(timeout); }
+  }
+
+  function initDemo() {
+    if (!IS_DEMO) return;
+    document.body.classList.add('has-demo');
+    const bar = document.createElement('aside');
+    bar.className = 'demo-bar';
+    bar.setAttribute('aria-label', 'Управление демо');
+    bar.innerHTML = `<div><strong>WebHive / демо</strong><span>Учебный проект. Заявки и изменения видны только вам.</span></div>
+      <nav aria-label="Роли демо"><button type="button" data-demo-role="user">Я клиент</button>
+      <button type="button" data-demo-role="admin">Я администратор</button>
+      <button type="button" data-demo-reset>Сбросить демо</button></nav><p class="demo-error" role="alert" hidden></p>`;
+    document.body.prepend(bar);
+    const onError = err => { const label = bar.querySelector('.demo-error'); label.hidden = false; label.textContent = err.message; };
+    bar.querySelectorAll('[data-demo-role]').forEach(button => button.addEventListener('click', () => {
+      try {
+        const role = button.dataset.demoRole;
+        setSession('local-demo', { id: role === 'admin' ? 2 : 1, login: role === 'admin' ? 'demo.admin' : 'demo.client', role });
+        window.location.href = role === 'admin' ? 'admin.html' : 'cabinet.html';
+      } catch (_) { onError(new Error('Браузер запретил сохранение демо-сессии. Разрешите локальное хранилище.')); }
+    }));
+    bar.querySelector('[data-demo-reset]').addEventListener('click', () => {
+      if (!window.confirm('Удалить ваши изменения и восстановить примеры демо?')) return;
+      try { demoStore.reset(); clearSession(); window.location.href = 'index.html'; } catch (err) { onError(err); }
+    });
+    for (const id of ['loginForm', 'registerForm']) {
+      const form = byId(id);
+      if (!form) continue;
+      form.hidden = true;
+      const intro = document.querySelector('.wh-auth-wrap > .muted');
+      if (intro) intro.textContent = 'Познакомьтесь с кабинетом без создания аккаунта.';
+      const note = document.createElement('p');
+      note.textContent = 'Регистрация не нужна. Выберите роль в панели демо: клиент или администратор.';
+      form.before(note);
     }
-    return data;
   }
 
   function initUiEffects() {
@@ -476,11 +510,15 @@
     const screen = byId('menuScreen');
     if (!toggle || !overlay || !screen) return;
 
+    screen.inert = true;
     const openMenu = () => {
+      screen.inert = false;
       document.body.classList.add('menu-open');
       screen.setAttribute('aria-hidden', 'false');
       overlay.hidden = false;
       toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', 'Закрыть меню');
+      screen.querySelector('a').focus();
     };
 
     const closeMenu = () => {
@@ -488,6 +526,9 @@
       screen.setAttribute('aria-hidden', 'true');
       overlay.hidden = true;
       toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Открыть меню');
+      screen.inert = true;
+      toggle.focus();
     };
 
     toggle.addEventListener('click', () => {
@@ -498,6 +539,16 @@
     screen.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && document.body.classList.contains('menu-open')) closeMenu();
+      if (e.key === 'Tab' && document.body.classList.contains('menu-open')) {
+        const links = [...screen.querySelectorAll('a')].filter(link => link.getClientRects().length > 0);
+        const first = links[0];
+        const last = links[links.length - 1];
+        if (!first) return;
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); toggle.focus(); }
+        else if (e.shiftKey && document.activeElement === toggle) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); toggle.focus(); }
+        else if (!e.shiftKey && document.activeElement === toggle) { e.preventDefault(); first.focus(); }
+      }
     });
   }
 
@@ -870,36 +921,34 @@
   async function initCatalog() {
     const grid = byId('servicesGrid');
     if (!grid) return;
-
-    const searchInput = byId('searchInput');
-    const categorySelect = byId('categorySelect');
-    const minPriceInput = byId('minPriceInput');
-    const maxPriceInput = byId('maxPriceInput');
-
+    const fields = ['searchInput', 'categorySelect', 'minPriceInput', 'maxPriceInput'].map(byId);
+    let requestId = 0;
+    let timer;
     async function loadServices() {
+      const current = ++requestId;
       const params = new URLSearchParams();
-      if (searchInput.value.trim()) params.set('search', searchInput.value.trim());
-      if (categorySelect.value) params.set('category', categorySelect.value);
-      if (minPriceInput.value) params.set('minPrice', minPriceInput.value);
-      if (maxPriceInput.value) params.set('maxPrice', maxPriceInput.value);
-
+      ['search', 'category', 'minPrice', 'maxPrice'].forEach((key, index) => {
+        if (fields[index].value.trim()) params.set(key, fields[index].value.trim());
+      });
+      grid.setAttribute('aria-busy', 'true');
+      grid.innerHTML = '<p role="status">Загружаем услуги…</p>';
       try {
-        const list = await api(`/services?${params.toString()}`);
-        grid.innerHTML = list.length
-          ? list.map(serviceCard).join('')
-          : '<div class="panel">По вашему фильтру услуги не найдены.</div>';
+        const list = await api(`/services?${params}`);
+        if (current !== requestId) return;
+        if (!Array.isArray(list)) throw new Error('Сервер вернул некорректный список услуг.');
+        grid.innerHTML = list.length ? list.map(serviceCard).join('') : '<p role="status">По вашему фильтру услуги не найдены.</p>';
         applyMotionToChildren(grid, 75);
       } catch (err) {
-        grid.innerHTML = `<div class="panel">Ошибка загрузки: ${escapeHtml(err.message)}</div>`;
-        applyMotionToChildren(grid, 75);
-      }
+        if (current !== requestId) return;
+        grid.innerHTML = `<div class="panel" role="alert">${escapeHtml(err.message)} <button class="btn" type="button" data-retry>Повторить</button></div>`;
+        grid.querySelector('[data-retry]').addEventListener('click', loadServices);
+      } finally { if (current === requestId) grid.setAttribute('aria-busy', 'false'); }
     }
-
-    [searchInput, categorySelect, minPriceInput, maxPriceInput].forEach((el) => {
-      el.addEventListener('input', loadServices);
-      el.addEventListener('change', loadServices);
-    });
-
+    fields.forEach(field => field.addEventListener('input', () => {
+      ++requestId; // Ignore an old response even during the debounce window.
+      clearTimeout(timer);
+      timer = setTimeout(loadServices, 250);
+    }));
     await loadServices();
   }
 
@@ -920,6 +969,11 @@
     let services = [];
 
     bindRussianPhoneMask(contactPhoneField);
+    if (IS_DEMO) {
+      [[contactNameField, 'Демо-клиент'], [contactEmailField, 'client@example.com'], [contactPhoneField, '+7 (000) 000 00 00']].forEach(([field, value]) => { field.value = value; field.readOnly = true; });
+      commentField.value = 'Тестовая заявка для знакомства с интерфейсом.';
+      commentField.maxLength = 4000;
+    }
 
     try {
       services = await api('/services');
@@ -944,7 +998,7 @@
     }
 
     const currentUser = getUser();
-    if (contactNameField && currentUser?.login) {
+    if (!IS_DEMO && contactNameField && currentUser?.login) {
       contactNameField.value = currentUser.login;
     }
 
@@ -1010,12 +1064,12 @@
           },
           auth: true,
         });
-        showMessage(message, `Заявка ${getClientApplicationLabel(createdApplication)} отправлена. Мы свяжемся с вами в ближайшее время.`, 'success');
-        form.reset();
+        showMessage(message, IS_DEMO ? `Демо-заявка ${getClientApplicationLabel(createdApplication)} сохранена. Откройте кабинет или переключитесь в админку.` : `Заявка ${getClientApplicationLabel(createdApplication)} отправлена.`, 'success');
+        if (!IS_DEMO) form.reset();
         if (serviceId && serviceSelect) {
           serviceSelect.value = String(serviceId);
         }
-        if (contactNameField && currentUser?.login) {
+        if (!IS_DEMO && contactNameField && currentUser?.login) {
           contactNameField.value = currentUser.login;
         }
       } catch (err) {
@@ -1032,7 +1086,7 @@
 
     try {
       const apiItems = await api('/portfolio');
-      const merged = [...featuredPortfolioData, ...apiItems];
+      const merged = IS_DEMO ? apiItems : [...apiItems, ...featuredPortfolioData];
       const unique = merged.filter((item, index, arr) => (
         index === arr.findIndex((entry) => entry.title === item.title)
       ));
@@ -1048,6 +1102,7 @@
   }
 
   function initRegister() {
+    if (IS_DEMO) return;
     const form = byId('registerForm');
     if (!form) return;
 
@@ -1073,8 +1128,8 @@
         return;
       }
 
-      if (password.length < 8 || password.length > 72) {
-        showMessage(message, 'Пароль должен содержать от 8 до 72 символов.', 'error');
+      if (password.length < 8 || new TextEncoder().encode(password).length > 72) {
+        showMessage(message, 'Пароль: минимум 8 символов, максимум 72 байта UTF-8.', 'error');
         return;
       }
 
@@ -1108,6 +1163,7 @@
   }
 
   function initLogin() {
+    if (IS_DEMO) return;
     const form = byId('loginForm');
     if (!form) return;
 
@@ -1124,7 +1180,7 @@
       const login = form.login.value.trim();
       const password = form.password.value;
 
-      if (login.length < 3 || password.length < 8 || password.length > 72) {
+      if (login.length < 3 || password.length < 8 || new TextEncoder().encode(password).length > 72) {
         showMessage(message, 'Логин должен быть от 3 символов, пароль от 8 до 72 символов.', 'error');
         return;
       }
@@ -1404,12 +1460,12 @@
               <p class="wh-admin-detail-comment"><b>Комментарий:</b> ${escapeHtml(row.comment || 'Комментарий не указан')}</p>
               <div class="wh-admin-business-form">
                 <div>
-                  <label class="label">Финальная цена</label>
-                  <input class="input" type="number" min="0" step="1000" placeholder="Например: 145000" data-final-price-input value="${escapeHtml(formatFinalPriceInput(row.final_price))}">
+                  <label class="label" for="final-price-${row.id}">Финальная цена</label>
+                  <input class="input" type="number" min="0" step="1000" placeholder="Например: 145000" id="final-price-${row.id}" data-final-price-input value="${escapeHtml(formatFinalPriceInput(row.final_price))}">
                 </div>
                 <div>
-                  <label class="label">Комментарий менеджера</label>
-                  <textarea rows="4" maxlength="1000" placeholder="Что согласовали с клиентом, что нужно уточнить, следующий шаг" data-admin-note-input>${escapeHtml(row.admin_note || '')}</textarea>
+                  <label class="label" for="admin-note-${row.id}">Комментарий менеджера</label>
+                  <textarea rows="4" maxlength="1000" placeholder="Что согласовали с клиентом, что нужно уточнить, следующий шаг" id="admin-note-${row.id}" data-admin-note-input>${escapeHtml(row.admin_note || '')}</textarea>
                 </div>
                 <div class="actions wh-inner-actions">
                   <button class="btn wh-btn-flat" type="button" data-save-application-details="${row.id}">Сохранить расчет</button>
@@ -1442,7 +1498,7 @@
           </td>
           <td class="wh-admin-status-cell" data-label="Статус">
             <div class="wh-admin-status">
-              <select data-status-id="${row.id}" data-current-status="${row.status}">
+              <select aria-label="Статус заявки ${row.id}" data-status-id="${row.id}" data-current-status="${row.status}">
                 <option value="new" ${row.status === 'new' ? 'selected' : ''}>Новая</option>
                 <option value="work" ${row.status === 'work' ? 'selected' : ''}>В работе</option>
                 <option value="done" ${row.status === 'done' ? 'selected' : ''}>Выполнено</option>
@@ -1831,6 +1887,15 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    initDemo();
+    const video = document.querySelector('.wh-hero-video');
+    const videoToggle = byId('heroVideoToggle');
+    videoToggle?.addEventListener('click', async () => {
+      try {
+        if (video.paused) { await video.play(); videoToggle.textContent = 'Остановить фон'; }
+        else { video.pause(); videoToggle.textContent = 'Включить видеофон'; }
+      } catch (_) { videoToggle.textContent = 'Видео недоступно'; }
+    });
     const captureMode = initCaptureMode();
     initTopOnReload();
     if (!captureMode) {

@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const pool = require('../db/pool');
 const { getJwtSecret } = require('../config/security');
 
 function extractBearer(req) {
@@ -8,7 +9,7 @@ function extractBearer(req) {
   return token;
 }
 
-function requireAuth(req, res, next) {
+async function requireAuth(req, res, next) {
   const token = extractBearer(req);
   if (!token) {
     return res.status(401).json({ error: 'Unauthorized' });
@@ -16,11 +17,17 @@ function requireAuth(req, res, next) {
 
   try {
     const payload = jwt.verify(token, getJwtSecret(), { algorithms: ['HS256'] });
-    req.user = payload;
-    return next();
+    if (!Number.isInteger(payload.id) || payload.id < 1) return res.status(401).json({ error: 'Invalid token' });
+    req.authUserId = payload.id;
   } catch (err) {
     return res.status(401).json({ error: 'Invalid token' });
   }
+  try {
+    const found = await pool.query('SELECT id, login, role FROM users WHERE id = $1', [req.authUserId]);
+    if (!found.rowCount) return res.status(401).json({ error: 'Invalid token' });
+    req.user = found.rows[0];
+    return next();
+  } catch (err) { return next(err); }
 }
 
 function requireAdmin(req, res, next) {

@@ -36,3 +36,16 @@ frontend/assets/img/webhive-hero2.mp4
 # OS/editor noise
 .DS_Store
 Thumbs.db
+
+# Portfolio build and local materials
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.session.sql
+coverage/
+test-results/
+playwright-report/
+docs/defense-guide.md
+docs/site-structure-detailed.md

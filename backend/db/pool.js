@@ -12,6 +12,7 @@ const config = process.env.DATABASE_URL
       password: process.env.DB_PASSWORD || 'postgres',
     };
 
-const pool = new Pool(config);
+const pool = new Pool({ ...config, connectionTimeoutMillis: 5000, statement_timeout: 8000, max: 10 });
+pool.on('error', (err) => console.error('Idle database connection failed:', err.code || err.name));
 
 module.exports = pool;

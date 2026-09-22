@@ -50,7 +50,7 @@ function normalizeAdminNote(value) {
 }
 
 async function createApplication(req, res, next) {
-  const client = await pool.connect();
+  let client;
   try {
     const {
       service_id,
@@ -69,17 +69,17 @@ async function createApplication(req, res, next) {
     const normalizedPhone = normalizeRussianPhone(contact_phone);
     const normalizedComment = String(comment || '').trim();
 
-    if (normalizedName.length < 2) {
-      return res.status(400).json({ error: 'contact_name must contain at least 2 characters' });
+    if (normalizedName.length < 2 || normalizedName.length > 120) {
+      return res.status(400).json({ error: 'Контактное имя должно содержать от 2 до 120 символов.' });
     }
-    if (!normalizedEmail || !EMAIL_RE.test(normalizedEmail)) {
+    if (!normalizedEmail || normalizedEmail.length > 120 || !EMAIL_RE.test(normalizedEmail)) {
       return res.status(400).json({ error: 'contact_email must be a valid email address' });
     }
     if (!normalizedPhone) {
       return res.status(400).json({ error: 'contact_phone must match +7 (999) 999 99 99' });
     }
-    if (normalizedComment && normalizedComment.length < 12) {
-      return res.status(400).json({ error: 'comment must be at least 12 characters or empty' });
+    if (normalizedComment && (normalizedComment.length < 12 || normalizedComment.length > 4000)) {
+      return res.status(400).json({ error: 'Комментарий должен содержать от 12 до 4000 символов или быть пустым.' });
     }
 
     const serviceId = Number(service_id);
@@ -87,6 +87,7 @@ async function createApplication(req, res, next) {
       return res.status(400).json({ error: 'service_id must be a positive integer' });
     }
 
+    client = await pool.connect();
     const serviceExists = await client.query('SELECT id FROM services WHERE id = $1 LIMIT 1', [serviceId]);
     if (serviceExists.rowCount === 0) {
       return res.status(404).json({ error: 'service not found' });
@@ -125,13 +126,13 @@ async function createApplication(req, res, next) {
     });
   } catch (err) {
     try {
-      await client.query('ROLLBACK');
+      if (client) await client.query('ROLLBACK');
     } catch (_rollbackErr) {
       // ignore rollback error
     }
     return next(err);
   } finally {
-    client.release();
+    client?.release();
   }
 }
 
@@ -237,7 +238,7 @@ async function getApplicationHistory(req, res, next) {
 }
 
 async function updateApplicationStatus(req, res, next) {
-  const client = await pool.connect();
+  let client;
   try {
     const { id } = req.params;
     const { status, final_price, admin_note } = req.body;
@@ -251,12 +252,13 @@ async function updateApplicationStatus(req, res, next) {
       return res.status(400).json({ error: 'status must be one of: new, work, done' });
     }
 
+    client = await pool.connect();
     await client.query('BEGIN');
 
     const current = await client.query(
       `SELECT id, user_id, service_id, status, contact_name, contact_email, contact_phone, comment, final_price, admin_note, status_updated_at, updated_at, created_at
        FROM applications
-       WHERE id = $1`,
+       WHERE id = $1 FOR UPDATE`,
       [applicationId]
     );
     if (current.rowCount === 0) {
@@ -308,13 +310,13 @@ async function updateApplicationStatus(req, res, next) {
     return res.json(updated.rows[0]);
   } catch (err) {
     try {
-      await client.query('ROLLBACK');
+      if (client) await client.query('ROLLBACK');
     } catch (_rollbackErr) {
       // ignore rollback error
     }
     return next(err);
   } finally {
-    client.release();
+    client?.release();
   }
 }
 

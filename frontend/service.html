@@ -15,7 +15,7 @@
   </aside>
 
   <div class="menu-overlay" id="menuOverlay" hidden></div>
-  <section class="menu-screen" id="menuScreen" aria-hidden="true">
+  <section class="menu-screen" id="menuScreen" aria-hidden="true" inert>
     <div class="menu-screen-inner">
       <p class="menu-screen-kicker">Навигация</p>
       <nav class="menu-screen-list">
@@ -73,13 +73,13 @@
                   <option value="">Выберите услугу</option>
                 </select>
                 <label class="label" for="applicationContactName">Контактное лицо</label>
-                <input class="input" id="applicationContactName" placeholder="Иван Петров" required>
+                <input class="input" id="applicationContactName" maxlength="120" placeholder="Иван Петров" required>
                 <label class="label" for="applicationContactEmail">Email для связи</label>
-                <input class="input" id="applicationContactEmail" type="email" placeholder="name@company.ru" required>
+                <input class="input" id="applicationContactEmail" maxlength="120" type="email" placeholder="name@company.ru" required>
                 <label class="label" for="applicationContactPhone">Телефон</label>
                 <input class="input" id="applicationContactPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="18" placeholder="+7 (900) 000 00 00" required>
                 <label class="label" for="applicationComment">Комментарий к задаче</label>
-                <textarea id="applicationComment" rows="5" placeholder="Кратко опишите нишу, цели и ожидаемый результат"></textarea>
+                <textarea id="applicationComment" maxlength="4000" rows="5" placeholder="Кратко опишите нишу, цели и ожидаемый результат"></textarea>
                 <div class="actions wh-inner-actions">
                   <button class="btn wh-btn-flat" type="submit">Отправить заявку</button>
                   <a class="btn wh-btn-flat" href="cabinet.html">Мои заявки</a>
@@ -105,6 +105,8 @@
     </div>
   </footer>
 
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/demo.js"></script>
   <script src="assets/js/main.js"></script>
 </body>
 </html>

@@ -27,8 +27,8 @@ async function register(req, res, next) {
       return res.status(400).json({ error: 'login must contain 3-32 latin letters, digits, dots, underscores or hyphens' });
     }
 
-    if (normalizedPassword.length < 8 || normalizedPassword.length > 72) {
-      return res.status(400).json({ error: 'password must contain 8-72 characters' });
+    if (normalizedPassword.length < 8 || Buffer.byteLength(normalizedPassword, 'utf8') > 72) {
+      return res.status(400).json({ error: 'Пароль: минимум 8 символов и максимум 72 байта UTF-8.' });
     }
 
     const exists = await pool.query('SELECT id FROM users WHERE LOWER(login) = $1', [normalizedLogin]);
@@ -49,6 +49,7 @@ async function register(req, res, next) {
 
     return res.status(201).json({ token, user });
   } catch (err) {
+    if (err.code === '23505') return res.status(409).json({ error: 'login already exists' });
     return next(err);
   }
 }
@@ -63,7 +64,7 @@ async function login(req, res, next) {
       return res.status(400).json({ error: 'login and password are required' });
     }
 
-    if (!LOGIN_RE.test(normalizedLogin) || normalizedPassword.length < 8 || normalizedPassword.length > 72) {
+    if (!LOGIN_RE.test(normalizedLogin) || normalizedPassword.length < 8 || Buffer.byteLength(normalizedPassword, 'utf8') > 72) {
       return res.status(400).json({ error: 'invalid login or password format' });
     }
 

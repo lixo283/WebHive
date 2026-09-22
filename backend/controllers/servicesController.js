@@ -22,7 +22,7 @@ function normalizeService(body) {
   if (name.length < 3 || name.length > 255) {
     return { error: 'name must contain 3-255 characters' };
   }
-  if (!Number.isFinite(price) || price <= 0) {
+  if (!Number.isFinite(price) || price <= 0 || price > 99999999.99) {
     return { error: 'price must be a positive number' };
   }
   if (!VALID_CATEGORIES.has(category)) {
